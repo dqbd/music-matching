@@ -1,0 +1,1 @@
+# NI-VMM: Obecná audio podobnost
