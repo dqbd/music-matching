@@ -10,7 +10,6 @@ If you are not familiar with the different technologies used in this project, pl
 
 - [Next-Auth.js](https://next-auth.js.org)
 - [Prisma](https://prisma.io)
-- [TailwindCSS](https://tailwindcss.com)
 - [tRPC](https://trpc.io)
 
 We also [roll our own docs](https://create.t3.gg) with some summary information and links to the respective documentation.
