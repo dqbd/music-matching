@@ -1,6 +1,5 @@
+celery==5.2.7
 fastdtw==0.3.4
 librosa==0.9.2
-matplotlib==3.6.2
 numpy==1.23.4
-pandas==1.5.1
-seaborn==0.12.1
+redis==4.3.5
