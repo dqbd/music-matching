@@ -2,4 +2,6 @@ project_env
 .vscode
 .idea
 .DS_Store
-dataset
+dataset/
+tmp/*
+!tmp/.gitempty
