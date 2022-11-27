@@ -19,6 +19,8 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           *:before,
           *:after {
             box-sizing: border-box;
+
+            font-family: system-ui;
           }
 
           body {

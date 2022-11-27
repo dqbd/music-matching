@@ -1,29 +1,28 @@
 import { css } from "@emotion/react"
-import { Button, FileInput } from "@mantine/core"
-import { useState } from "react"
+import { CircleButton } from "./CircleButton"
+import { UploadIcon } from "./Icons"
+import { ButtonLabel } from "./ButtonLabel"
 
-export const UploadForm = (props: {
-  onSubmit: (file: File) => void
-  isLoading: boolean
-}) => {
-  const [file, setFile] = useState<File | null>(null)
+export const UploadForm = (props: { onChange: (file: File) => void }) => (
+  <ButtonLabel title="Identify track">
+    <CircleButton>
+      <UploadIcon />
+      <input
+        type="file"
+        css={css`
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
 
-  return (
-    <form
-      css={css`
-        display: grid;
-        gap: 12px;
-        grid-template-columns: minmax(200px, 1fr) auto;
-      `}
-      onSubmit={(e) => {
-        e.preventDefault()
-        if (file != null) props.onSubmit(file)
-      }}
-    >
-      <FileInput onChange={setFile} value={file} />
-      <Button type="submit" disabled={props.isLoading}>
-        Nahrát
-      </Button>
-    </form>
-  )
-}
+          opacity: 0;
+        `}
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file != null) props.onChange(file)
+        }}
+      />
+    </CircleButton>
+  </ButtonLabel>
+)
