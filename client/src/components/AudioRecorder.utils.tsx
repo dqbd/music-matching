@@ -60,7 +60,7 @@ const useMediaRecorder = (props: { onSuccess: (file: File) => void }) => {
   }
 
   return {
-    isRecording: mutation.isLoading,
+    mutation,
     start: () => mutation.mutateAsync(),
     stop,
   }
@@ -69,16 +69,20 @@ function ClientAudioRecorder(props: {
   onRecordStart: () => void
   onSubmit: (file: File) => void
 }) {
-  const { isRecording, start, stop } = useMediaRecorder({
+  const { mutation, start, stop } = useMediaRecorder({
     onSuccess: props.onSubmit,
   })
 
   return (
-    <ButtonLabel title={isRecording ? <Timer /> : "Record Sample"}>
+    <ButtonLabel
+      title={
+        mutation.isLoading || mutation.isSuccess ? <Timer /> : "Record Sample"
+      }
+    >
       <CircleButton
-        isLoading={isRecording}
+        isLoading={mutation.isLoading}
         onClick={() => {
-          if (isRecording) {
+          if (mutation.isLoading) {
             stop()
           } else {
             props.onRecordStart()

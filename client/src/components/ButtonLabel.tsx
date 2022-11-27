@@ -12,7 +12,7 @@ export const ButtonLabel = (props: {
         flex-direction: column;
         align-items: center;
 
-        gap: 24px;
+        position: relative;
       `}
     >
       {props.children}
@@ -22,6 +22,11 @@ export const ButtonLabel = (props: {
           font-size: 16px;
           color: #e2e8f0;
           text-align: center;
+
+          position: absolute;
+
+          top: 100%;
+          margin-top: 24px;
         `}
       >
         {props.title}
