@@ -2,11 +2,16 @@ import { css } from "@emotion/react"
 import { Button, Divider, Text, Title } from "@mantine/core"
 import { useMutation } from "@tanstack/react-query"
 import { type NextPage } from "next"
+import dynamic from "next/dynamic"
 import { Fragment } from "react"
 import { AudioMatch } from "../components/AudioMatch"
 import { UploadForm } from "../components/UploadForm"
 import { useFileUploadMutation } from "../utils/file"
 import { trpc } from "../utils/trpc"
+
+const AudioRecorder = dynamic(() => import("../components/AudioRecorder"), {
+  ssr: false,
+})
 
 const Home: NextPage = () => {
   const fileMutation = useFileUploadMutation()
@@ -51,6 +56,7 @@ const Home: NextPage = () => {
           >
             NI-VMM Audio Podobnost
           </Title>
+          <AudioRecorder onSubmit={(file) => mutation.mutate(file)} />
           <div
             css={css`
               background: white;
