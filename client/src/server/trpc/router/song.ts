@@ -183,10 +183,8 @@ export const songRouter = router({
 
             coverImg = filename
           } catch (err) {
-
-            throw err
-            // console.error(err)
-            // await wait(1000 * attempt)
+            console.error(err)
+            await wait(1000 * attempt)
           }
         }
       }
