@@ -18,7 +18,7 @@ export const AudioMatch = (props: { songId: string }) => {
     >
       {music.data.coverImg && (
         <img
-          src={music.data.coverImg}
+          src={`/api/image/${music.data.id}`}
           alt={music.data.title}
           css={{ borderRadius: 4 }}
           width={64}

@@ -2,7 +2,6 @@ import path from "node:path"
 import { z } from "zod"
 import {
   DATASET_DIR_PATH,
-  PYTHON_BIN_PATH,
   TMP_DIR_PATH,
   WORKER_FINGERPRINT_PATH,
   WORKER_MATCH_PATH,
@@ -10,8 +9,9 @@ import {
 
 import { promises as fs } from "node:fs"
 import { router, publicProcedure } from "../trpc"
-import { spawn } from "node:child_process"
-import type { SpawnOptionsWithoutStdio } from "node:child_process"
+import { spawnWorker } from "../../spawn"
+import { extension } from "mime-types"
+import { wait } from "../../time"
 
 const FingerprintSchema = z.array(
   z.object({
@@ -19,45 +19,6 @@ const FingerprintSchema = z.array(
     time: z.number(),
   })
 )
-
-const spawnAsync = (
-  command: string,
-  args?: readonly string[],
-  options?: SpawnOptionsWithoutStdio
-) => {
-  return new Promise<{ stdout: Buffer; stderr: Buffer }>((resolve, reject) => {
-    const stdout: Buffer[] = []
-    const stderr: Buffer[] = []
-
-    const child = spawn(command, args, options)
-
-    child.on("error", (err) => reject(err))
-    child.stdout?.on("error", (err) => reject(err))
-    child.stderr?.on("error", (err) => reject(err))
-    child.stdin?.on("error", (err) => reject(err))
-
-    child.stdout?.on("data", (data: Buffer) => stdout.push(data))
-    child.stderr?.on("data", (data: Buffer) => stderr.push(data))
-
-    child.on("close", (code) => {
-      if (code === 0)
-        return resolve({
-          stdout: Buffer.concat(stdout),
-          stderr: Buffer.concat(stderr),
-        })
-      return reject(new Error(`Command exited with code: ${code}`))
-    })
-  })
-}
-
-const spawnWorker = async <T extends z.ZodType>(
-  worker: string,
-  args: readonly string[],
-  output: T
-): Promise<z.infer<T>> => {
-  const exec = await spawnAsync(PYTHON_BIN_PATH, [worker, ...args])
-  return output.parse(JSON.parse(exec.stdout.toString("utf-8")))
-}
 
 const IndexSchema = z.array(
   z.object({
@@ -168,6 +129,68 @@ export const songRouter = router({
     await ctx.prisma.song.deleteMany()
 
     for (const item of index) {
+      const coverUrl = item.thumbnails.reduce<
+        IndexObjectWithFile["thumbnails"][number] | null
+      >((memo, item) => {
+        if (!memo || item.width > memo.width || item.height > memo.height)
+          return item
+        return memo
+      }, null)?.url
+
+      let coverImg = null
+
+      if (coverUrl != null) {
+        while (coverImg == null) {
+          let attempt = 0
+          try {
+            attempt += 1
+
+            // attempt to get cover image
+            const req = await fetch(coverUrl, {
+              headers: {
+                accept: `text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9`,
+                "accept-encoding": `gzip, deflate, br`,
+                "accept-language": `en-US,en;q=0.9`,
+                "cache-control": `no-cache`,
+                dnt: `1`,
+                pragma: `no-cache`,
+                "sec-ch-ua": `"Chromium";v="107", "Not=A?Brand";v="24"`,
+                "sec-ch-ua-arch": `"arm"`,
+                "sec-ch-ua-bitness": `"64"`,
+                "sec-ch-ua-full-version-list": `"Chromium";v="107.0.5304.122", "Not=A?Brand";v="24.0.0.0"`,
+                "sec-ch-ua-mobile": `?0`,
+                "sec-ch-ua-model": `""`,
+                "sec-ch-ua-platform": `"macOS"`,
+                "sec-ch-ua-platform-version": `"13.0.1"`,
+                "sec-ch-ua-wow64": `?0`,
+                "sec-fetch-dest": `document`,
+                "sec-fetch-mode": `navigate`,
+                "sec-fetch-site": `none`,
+                "sec-fetch-user": `?1`,
+                "upgrade-insecure-requests": `1`,
+                "user-agent": `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36`,
+              },
+            })
+            if (!req.ok) throw new Error("Failed to fetch cover image")
+
+            const contentType = req.headers.get("Content-Type")
+            if (!contentType) throw new Error("Missing content type")
+
+            const filename = [item.videoId, extension(contentType)].join(".")
+            const filepath = path.resolve(TMP_DIR_PATH, filename)
+
+            await fs.writeFile(filepath, Buffer.from(await req.arrayBuffer()))
+
+            coverImg = filename
+          } catch (err) {
+
+            throw err
+            // console.error(err)
+            // await wait(1000 * attempt)
+          }
+        }
+      }
+
       const fingerprints = await spawnWorker(
         WORKER_FINGERPRINT_PATH,
         [item.filepath],
@@ -181,13 +204,7 @@ export const songRouter = router({
           artists: item.artists.map((i) => i.name).join(", "),
           title: item.title,
           album: item.album?.name,
-          coverImg: item.thumbnails.reduce<
-            IndexObjectWithFile["thumbnails"][number] | null
-          >((memo, item) => {
-            if (!memo || item.width > memo.width || item.height > memo.height)
-              return item
-            return memo
-          }, null)?.url,
+          coverImg: coverImg,
           fingerprints: {
             create: fingerprints,
           },
