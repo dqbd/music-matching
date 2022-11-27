@@ -1,5 +1,5 @@
 import { css } from "@emotion/react"
-import { Divider, Text, Title } from "@mantine/core"
+import { Button, Divider, Text, Title } from "@mantine/core"
 import { useMutation } from "@tanstack/react-query"
 import { type NextPage } from "next"
 import { Fragment } from "react"
@@ -10,11 +10,13 @@ import { trpc } from "../utils/trpc"
 
 const Home: NextPage = () => {
   const fileMutation = useFileUploadMutation()
-  const uploadMutation = trpc.song.upload.useMutation()
+  const matchMutation = trpc.song.match.useMutation()
+
+  const importMutation = trpc.song.import.useMutation()
 
   const mutation = useMutation(async (file: File) => {
     const fileName = await fileMutation.mutateAsync(file)
-    return await uploadMutation.mutateAsync({ fileName })
+    return await matchMutation.mutateAsync({ fileName })
   })
 
   return (
@@ -72,7 +74,9 @@ const Home: NextPage = () => {
             />
           </div>
 
-          {mutation.isSuccess && (
+          <Button onClick={() => importMutation.mutate()}>Import songs</Button>
+
+          {matchMutation.isSuccess && (
             <div
               css={css`
                 background: white;
@@ -85,16 +89,12 @@ const Home: NextPage = () => {
                 gap: 12px;
               `}
             >
-              {/* {mutation.data.map((i, idx) => (
-                <Fragment key={i}>
-                  <AudioMatch
-                    image="https://picsum.photos/64/64"
-                    author="Apache"
-                    name="Witches"
-                  />
-                  {idx + 1 !== mutation.data.data.result.length && <Divider />}
+              {matchMutation.data.map((i, idx) => (
+                <Fragment key={i.songId}>
+                  <AudioMatch songId={i.songId} />
+                  {idx + 1 !== matchMutation.data.length && <Divider />}
                 </Fragment>
-              ))} */}
+              ))}
             </div>
           )}
         </div>

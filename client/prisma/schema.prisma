@@ -12,8 +12,11 @@ datasource db {
 
 model Song {
   id           String        @id @default(cuid())
-  author       String
-  fileName     String
+  filepath     String
+  artists      String
+  title        String
+  album        String?
+  coverImg     String?
   fingerprints Fingerprint[]
 }
 

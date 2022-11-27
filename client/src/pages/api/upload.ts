@@ -3,7 +3,7 @@ import { type NextApiRequest, type NextApiResponse } from "next"
 import type { File } from "formidable"
 import formidable from "formidable"
 
-import { UPLOAD_DIR_PATH } from "../../server/constants"
+import { TMP_DIR_PATH } from "../../server/constants"
 
 export const config = {
   api: {
@@ -13,7 +13,7 @@ export const config = {
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const form = new formidable.IncomingForm({
-    uploadDir: UPLOAD_DIR_PATH,
+    uploadDir: TMP_DIR_PATH,
     keepExtensions: true,
   })
 

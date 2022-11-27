@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 import { css } from "@emotion/react"
 import { Text } from "@mantine/core"
+import { trpc } from "../utils/trpc"
 
-export const AudioMatch = (props: {
-  image: string
-  name: string
-  author: string
-}) => {
+export const AudioMatch = (props: { songId: string }) => {
+  const music = trpc.song.get.useQuery({ id: props.songId })
+
+  if (music.isLoading || music.data == null) return null
   return (
     <div
       css={css`
@@ -16,10 +16,20 @@ export const AudioMatch = (props: {
         gap: 12px;
       `}
     >
-      <img src={props.image} alt={props.name} css={{ borderRadius: 4 }} />
+      {music.data.coverImg && (
+        <img
+          src={music.data.coverImg}
+          alt={music.data.title}
+          css={{ borderRadius: 4 }}
+          width={64}
+          height={64}
+        />
+      )}
       <div>
-        <Text css={{ fontWeight: 700, lineHeight: "1.2em" }}>{props.name}</Text>
-        <Text>{props.author}</Text>
+        <Text css={{ fontWeight: 700, lineHeight: "1.2em" }}>
+          {music.data.title}
+        </Text>
+        <Text>{music.data.artists}</Text>
       </div>
     </div>
   )

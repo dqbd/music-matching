@@ -1,5 +1,4 @@
 import librosa
-import librosa.display
 import numpy as np
 import json
 import sys
@@ -77,28 +76,6 @@ def get_hashes_from_peaks(peaks, window_size=5):
     return hashes
 
 
-def compare_fingerprints(music_hashes, record_hashes):
-    """
-    Figure out matches between two fingerprints
-    1) Create a fingerprint from recording
-    2) Find the intersection of 2 fingerprints based on their hashes
-    3) Gather all deltas (distance between needle and search), count how many deltas are matching => sort by number of matching deltas
-    """
-    # Construct dict from music hashes
-    db = defaultdict(list)
-
-    for music in music_hashes:
-        db[music["hash"]].append(music["time"])
-
-    durations = defaultdict(int)
-    for record in record_hashes:
-        for music_time in db[record["hash"]]:
-            delta = abs(music_time - record["time"])
-            durations[str(delta)] += 1
-
-    return sorted(durations.values())[-1]
-
-
 if __name__ == "__main__":
     argv = sys.argv[1:]
     if (len(argv) == 1):
@@ -108,18 +85,6 @@ if __name__ == "__main__":
         result = get_hashes_from_peaks(get_peak_frequencies(audio))
         print(json.dumps(result), file=sys.stdout)
 
-    elif (len(argv) == 2):
-        source, target = argv
-        print(f"Comparing two files {source} {target}", file=sys.stderr)
-
-        source_audio, source_sr = librosa.load(source)
-        target_audio, target_sr = librosa.load(target)
-
-        source_hash = get_hashes_from_peaks(get_peak_frequencies(source_audio))
-        target_hash = get_hashes_from_peaks(get_peak_frequencies(target_audio))
-
-        result = compare_fingerprints(source_hash, target_hash)
-        print(json.dumps(result), file=sys.stdout)
     else:
         print("Invalid arguments", file=sys.stderr)
         sys.exit(1)
