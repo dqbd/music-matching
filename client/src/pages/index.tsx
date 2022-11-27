@@ -1,19 +1,20 @@
 import { css } from "@emotion/react"
 import { Divider, Text, Title } from "@mantine/core"
 import { useMutation } from "@tanstack/react-query"
-import axios from "axios"
 import { type NextPage } from "next"
 import { Fragment } from "react"
 import { AudioMatch } from "../components/AudioMatch"
 import { UploadForm } from "../components/UploadForm"
+import { useFileUploadMutation } from "../utils/file"
+import { trpc } from "../utils/trpc"
 
 const Home: NextPage = () => {
+  const fileMutation = useFileUploadMutation()
+  const uploadMutation = trpc.song.upload.useMutation()
+
   const mutation = useMutation(async (file: File) => {
-    const formData = new FormData()
-    formData.append("file", file)
-    return await axios.putForm<{
-      result: string[]
-    }>("/api/upload", formData)
+    const fileName = await fileMutation.mutateAsync(file)
+    return await uploadMutation.mutateAsync({ fileName })
   })
 
   return (
@@ -84,7 +85,7 @@ const Home: NextPage = () => {
                 gap: 12px;
               `}
             >
-              {mutation.data.data.result.map((i, idx) => (
+              {/* {mutation.data.map((i, idx) => (
                 <Fragment key={i}>
                   <AudioMatch
                     image="https://picsum.photos/64/64"
@@ -93,7 +94,7 @@ const Home: NextPage = () => {
                   />
                   {idx + 1 !== mutation.data.data.result.length && <Divider />}
                 </Fragment>
-              ))}
+              ))} */}
             </div>
           )}
         </div>

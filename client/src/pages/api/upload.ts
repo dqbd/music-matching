@@ -2,9 +2,8 @@ import { type NextApiRequest, type NextApiResponse } from "next"
 
 import type { File } from "formidable"
 import formidable from "formidable"
-import path from "node:path"
 
-import { celery } from "../../server/celery/client"
+import { UPLOAD_DIR_PATH } from "../../server/constants"
 
 export const config = {
   api: {
@@ -13,9 +12,10 @@ export const config = {
 }
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const uploadDir = path.resolve(process.env.ROOT!, "../tmp")
-  const form = new formidable.IncomingForm({ uploadDir, keepExtensions: true })
+  const form = new formidable.IncomingForm({
+    uploadDir: UPLOAD_DIR_PATH,
+    keepExtensions: true,
+  })
 
   try {
     const file = await new Promise<File>((resolve, reject) => {
@@ -29,11 +29,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       })
     })
 
-    const task = celery.createTask("tasks.mfcc")
-    const apply = task.applyAsync({ args: [file.newFilename], kwargs: {} })
-    const result = await apply.get()
-
-    res.status(200).json({ result })
+    res.status(200).json({ result: file.newFilename })
   } catch (err) {
     console.error(err)
     res.status(500).json(err)

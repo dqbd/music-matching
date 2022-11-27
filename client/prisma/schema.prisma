@@ -10,8 +10,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Example {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Song {
+  id           String        @id @default(cuid())
+  author       String
+  fileName     String
+  fingerprints Fingerprint[]
+}
+
+model Fingerprint {
+  id     Int    @id @default(autoincrement())
+  hash   String
+  time   Float
+  song   Song   @relation(fields: [songId], references: [id])
+  songId String
+
+  @@index([hash, time])
 }
