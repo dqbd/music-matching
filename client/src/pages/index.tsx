@@ -76,7 +76,11 @@ const Home: NextPage = () => {
                 <>
                   {matchMutation.data.map((i, idx) => (
                     <Fragment key={i.songId}>
-                      <AudioMatch songId={i.songId} index={idx + 1} />
+                      <AudioMatch
+                        songId={i.songId}
+                        matches={i.matches}
+                        index={idx < 3 ? idx + 1 : undefined}
+                      />
                     </Fragment>
                   ))}
                 </>
