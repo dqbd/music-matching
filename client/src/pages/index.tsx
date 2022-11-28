@@ -11,10 +11,12 @@ const Home: NextPage = () => {
   const fileMutation = useFileUploadMutation()
   const matchMutation = trpc.song.match.useMutation()
 
-  const mutation = useMutation(async (file: File) => {
-    const fileName = await fileMutation.mutateAsync(file)
-    return await matchMutation.mutateAsync({ fileName })
-  })
+  const mutation = useMutation(
+    async (data: { source: "upload" | "record"; file: File }) => {
+      const fileName = await fileMutation.mutateAsync(data.file)
+      return await matchMutation.mutateAsync({ fileName })
+    }
+  )
 
   return (
     <>
@@ -47,9 +49,10 @@ const Home: NextPage = () => {
         >
           <ButtonController
             key={matchMutation.isLoading ? "loading" : "not-loading"}
+            source={mutation.variables?.source}
             isLoading={matchMutation.isLoading}
             onClear={() => matchMutation.reset()}
-            onFile={(file) => mutation.mutate(file)}
+            onFile={(source, file) => mutation.mutate({ source, file })}
           />
 
           {matchMutation.isSuccess && (

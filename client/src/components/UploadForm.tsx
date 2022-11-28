@@ -3,9 +3,12 @@ import { CircleButton } from "./CircleButton"
 import { UploadIcon } from "./Icons"
 import { ButtonLabel } from "./ButtonLabel"
 
-export const UploadForm = (props: { onChange: (file: File) => void }) => (
+export const UploadForm = (props: {
+  onChange: (file: File) => void
+  layoutId?: string
+}) => (
   <ButtonLabel title="Identify track">
-    <CircleButton>
+    <CircleButton layoutId={props.layoutId}>
       <UploadIcon />
       <input
         type="file"

@@ -1,4 +1,3 @@
-import { Button } from "@mantine/core"
 import { useMutation } from "@tanstack/react-query"
 import { MediaRecorder, register } from "extendable-media-recorder"
 import type { IBlobEvent } from "extendable-media-recorder"
@@ -68,6 +67,7 @@ const useMediaRecorder = (props: { onSuccess: (file: File) => void }) => {
 function ClientAudioRecorder(props: {
   onRecordStart: () => void
   onSubmit: (file: File) => void
+  layoutId?: string
 }) {
   const { mutation, start, stop } = useMediaRecorder({
     onSuccess: props.onSubmit,
@@ -80,6 +80,7 @@ function ClientAudioRecorder(props: {
       }
     >
       <CircleButton
+        layoutId={props.layoutId}
         isLoading={mutation.isLoading}
         onClick={() => {
           if (mutation.isLoading) {
