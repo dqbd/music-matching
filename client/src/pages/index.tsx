@@ -6,6 +6,8 @@ import { AudioMatch } from "../components/AudioMatch"
 import { useFileUploadMutation } from "../utils/file"
 import { trpc } from "../utils/trpc"
 import { ButtonController } from "../components/ButtonController"
+import { AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 
 const Home: NextPage = () => {
   const fileMutation = useFileUploadMutation()
@@ -41,7 +43,7 @@ const Home: NextPage = () => {
           css={css`
             display: flex;
             flex-direction: column;
-            gap: 64px;
+            gap: 72px;
 
             width: 100%;
             max-width: 430px;
@@ -49,56 +51,60 @@ const Home: NextPage = () => {
         >
           <ButtonController
             key={matchMutation.isLoading ? "loading" : "not-loading"}
-            source={mutation.variables?.source}
+            source={mutation.variables?.source ?? "upload"}
             isLoading={matchMutation.isLoading}
             onClear={() => matchMutation.reset()}
             onFile={(source, file) => mutation.mutate({ source, file })}
           />
 
-          {matchMutation.isSuccess && (
-            <div
-              css={css`
-                width: 100%;
+          <AnimatePresence>
+            {matchMutation.isSuccess && (
+              <motion.div
+                initial={{ y: 32, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                css={css`
+                  width: 100%;
 
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: stretch;
 
-                padding: 24px;
-                padding-left: 36px;
-                justify-content: center;
-                gap: 12px;
+                  padding: 24px;
+                  padding-left: 36px;
+                  justify-content: center;
+                  gap: 12px;
 
-                background: rgba(0, 0, 0, 0.15);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 16px;
-                min-height: 180px;
-              `}
-            >
-              {matchMutation.data.length > 0 ? (
-                <>
-                  {matchMutation.data.map((i, idx) => (
-                    <Fragment key={i.songId}>
-                      <AudioMatch
-                        songId={i.songId}
-                        matches={i.matches}
-                        index={idx < 3 ? idx + 1 : undefined}
-                      />
-                    </Fragment>
-                  ))}
-                </>
-              ) : (
-                <span
-                  css={css`
-                    color: #475569;
-                    text-align: center;
-                  `}
-                >
-                  No Data
-                </span>
-              )}
-            </div>
-          )}
+                  background: rgba(0, 0, 0, 0.15);
+                  border: 1px solid rgba(255, 255, 255, 0.1);
+                  border-radius: 16px;
+                  min-height: 180px;
+                `}
+              >
+                {matchMutation.data.length > 0 ? (
+                  <>
+                    {matchMutation.data.map((i, idx) => (
+                      <Fragment key={i.songId}>
+                        <AudioMatch
+                          songId={i.songId}
+                          matches={i.matches}
+                          index={idx < 3 ? idx + 1 : undefined}
+                        />
+                      </Fragment>
+                    ))}
+                  </>
+                ) : (
+                  <span
+                    css={css`
+                      color: #475569;
+                      text-align: center;
+                    `}
+                  >
+                    No Data
+                  </span>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </main>
     </>

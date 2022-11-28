@@ -8,14 +8,12 @@ import { UploadForm } from "./UploadForm"
 
 export const ButtonController = (props: {
   onFile: (source: "upload" | "record", file: File) => void
-  source?: "upload" | "record"
+  source: "upload" | "record"
   onClear: () => void
   isLoading: boolean
 }) => {
   const [recordingActive, setRecordingActive] = useState(false)
-  const [type, setType] = useState<"upload" | "record">(
-    props.source ?? "record"
-  )
+  const [type, setType] = useState<"upload" | "record">(props.source)
 
   const handleChange = (type: "upload" | "record", file: File) => {
     props.onFile(type, file)
