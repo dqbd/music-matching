@@ -2,7 +2,6 @@ import librosa
 import numpy as np
 import json
 import sys
-from collections import defaultdict
 
 LIMITS = np.array([40, 80, 120, 180, 300, np.inf])
 
