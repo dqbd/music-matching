@@ -32,6 +32,8 @@ Celé porovnávní je implementováno v Pythonu za pomocí knihoven [librosa](ht
 
 Webové rozhraní je React aplikace využívající [t3 stack](https://create.t3.gg/).
 
+Pro ukládání hashů a metadat o písničkách používáme SQLite.
+
 Ke spuštění je tedy potřeba mít nainstalovaný Python a v souboru [client/src/server/constants.ts](./client/src/server/constants.ts) specifikovat cestu k jeho executable.
 
 ## Příklad výstupu
@@ -42,10 +44,16 @@ Porovnávání záznamů: ![Porovnavani zaznamu](images/matching_samples.png "Po
 Výsledky porovnávání: ![Vysledky porovnavani](images/results.png "Výsledky porovnávání")
 
 ## Experimentální sekce
-TODO
+V adresáři [research](research) jsou uloženy ukázky našeho prozkoumávání možností implementace audio podobnosti. Nejdříve jsme začli s vytažením samotných MFCC a následně jejich porovnáváním pomocí algoritmu Dynamic time warping (DTW). To se ukázalo jako poměrně výpočetně náročné a tedy i pomalé. Udělali jsme tedy rešerši implementace Shazamu a inspirovali se jejich vytvářením hashů peak frekvencí. Výsledek je spolehlivější a rychlejší.
+
+TODO možná přidat experimentální srovnání implementací. 
 
 ## Diskuze
-TODO
+Jako dataset jsme zvolili stažení vlastní knihovny Youtube music. Kvůli nadměrné velikosti jsme ji však neukládali do repozitáře. Způsob přidání datasetu je tedy skrze lokální složky dataset, která se díky Prisma zpracuje a uloží do databáze. Z hlediska konfigurace by se to určitě dalo vymyslet lépe.
+
+Spouštění Python skriptů jsme zkoušeli implementovat skrze [RabbitMQ](https://www.rabbitmq.com/) a [Celery](https://docs.celeryq.dev/en/stable/) jobů, to se však ukázalo zbytečně složité.
+
+Náš způsob implementace podobnosti funguje poměrně dobře, ale určitě by se dal vylepšit. Např. TODO
 
 ## Závěr
-TODO
+Aplikaci jsme vytvořili dle zadaných požadavků a v některých ohledech je i možná přesahujeme (např. možnost nahrání záznamu skrze mikrofon, hezký design). Výsledek projektu tedy hodnotíme velmi kladně.
