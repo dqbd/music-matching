@@ -13,11 +13,10 @@ def get_peak_frequencies(y, sr=22_050, n_fft=2_048):
     S = np.abs(librosa.stft(y, n_fft=n_fft))
 
     all_frames = np.arange(S.shape[1])
-
+    all_bins = np.arange(S.shape[0])
     frequencies = librosa.fft_frequencies(sr=sr, n_fft=n_fft)
     times = librosa.frames_to_time(all_frames)
-
-    bands = np.array([np.argmax(LIMITS >= freq) for freq in frequencies])
+    bands = np.array([np.argmax(LIMITS >= freq) for freq in all_bins])
 
     S_out = np.zeros_like(S, dtype=np.bool8)
 

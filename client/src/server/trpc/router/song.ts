@@ -36,6 +36,8 @@ export const songRouter = router({
         FingerprintSchema
       )
 
+      console.log("Matching fingerprint for file", targetFile)
+
       const matchFingerprints = await ctx.prisma.fingerprint.findMany({
         where: {
           hash: {

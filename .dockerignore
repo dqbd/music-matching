@@ -1,0 +1,11 @@
+Dockerfile
+.dockerignore
+client/.env
+client/node_modules
+client/npm-debug.log
+README.md
+client/.next
+.git
+dataset
+research
+tmp
