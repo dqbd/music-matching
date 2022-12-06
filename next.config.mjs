@@ -24,6 +24,7 @@ const config = {
   env: {
     ROOT: __dirname,
   },
+  output: "standalone",
 }
 
 export default config

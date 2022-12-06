@@ -45,11 +45,11 @@ Ke spuštění je tedy potřeba mít nainstalovaný Python a v souboru [client/s
 
 ## Příklad výstupu
 
-Úvodní stránka: ![Úvodní stranka](images/landing_page.png "Úvodní stránka")
+Úvodní stránka: ![Úvodní stranka](research/images/landing_page.png "Úvodní stránka")
 
-Porovnávání záznamů: ![Porovnavani zaznamu](images/matching_samples.png "Porovnávání záznamů")
+Porovnávání záznamů: ![Porovnavani zaznamu](research/images/matching_samples.png "Porovnávání záznamů")
 
-Výsledky porovnávání: ![Vysledky porovnavani](images/results.png "Výsledky porovnávání")
+Výsledky porovnávání: ![Vysledky porovnavani](research/images/results.png "Výsledky porovnávání")
 
 ## Experimentální sekce
 

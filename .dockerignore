@@ -1,11 +1,11 @@
 Dockerfile
 .dockerignore
-client/.env
-client/node_modules
-client/npm-debug.log
-README.md
-client/.next
+.env
+node_modules
+npm-debug.log
+.next
 .git
 dataset
 research
 tmp
+README.md
