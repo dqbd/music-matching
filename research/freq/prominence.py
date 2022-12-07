@@ -27,7 +27,7 @@ def get_peak_frequencies_prominence(y, sr=22_050, n_fft=2_048, hop_length=2_048/
         peaks, props = scipy.signal.find_peaks(
             window, prominence=0, distance=100)
 
-        num_peaks = min(peaks.shape[-1], 5)
+        num_peaks = min(peaks.shape[-1], 15)
         freq_bins = peaks[
             np.argpartition(props["prominences"], -num_peaks)[-num_peaks:]]
 
