@@ -20,8 +20,6 @@ export const ButtonController = (props: {
     setType(type)
   }
 
-  console.log({ type })
-
   return (
     <AnimatePresence>
       <div

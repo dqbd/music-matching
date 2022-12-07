@@ -3,12 +3,12 @@ import path from "node:path"
 
 export const WORKER_MATCH_PATH = path.resolve(
   process.env.ROOT!,
-  "worker/tasks/shazam_match.py"
+  "src/worker/shazam_match.py"
 )
 
 export const WORKER_FINGERPRINT_PATH = path.resolve(
   process.env.ROOT!,
-  "worker/tasks/shazam_fingerprint.py"
+  "src/worker/shazam_fingerprint.py"
 )
 
 export const TMP_DIR_PATH = path.resolve(process.env.ROOT!, "tmp")

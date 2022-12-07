@@ -43,8 +43,14 @@ export default function Page() {
 
   const processAll = useMutation(
     async (selected: SelectedItemList) => {
-      for (const i of selected) {
-        await process.mutateAsync(i)
+      const slices: SelectedItemList[] = []
+
+      for (let i = 0; i < selected.length; i += 4) {
+        slices.push(selected.slice(i, i + 4))
+      }
+
+      for (const slice of slices) {
+        await Promise.all(slice.map((i) => process.mutateAsync(i)))
       }
     },
     {

@@ -47,3 +47,5 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+__pycache__

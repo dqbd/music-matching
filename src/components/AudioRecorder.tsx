@@ -14,13 +14,17 @@ export function AudioRecorder(props: {
 }) {
   const [isRecording, setIsRecording] = useState(false)
   const ref = useRef<Recorder | null>(null)
+  const stream = useRef<MediaStream | null>(null)
 
   const start = useMutation(
     async () => {
       ref.current = new Recorder(new AudioContext())
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      await ref.current.init(stream)
+      stream.current = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      })
+
+      await ref.current.init(stream.current)
       await ref.current.start()
     },
     {
@@ -35,14 +39,13 @@ export function AudioRecorder(props: {
 
   const stop = useMutation(
     async () => {
-      const result = await ref.current?.stop()
-      if (!result?.blob) throw new Error("No blob available")
-
-      const file = new File([result.blob], "recording.wav", {
-        type: "audio/wav",
-      })
-
-      return file
+      try {
+        const result = await ref.current?.stop()
+        if (!result?.blob) throw new Error("No blob available")
+        return new File([result.blob], "recording.wav", { type: "audio/wav" })
+      } finally {
+        stream.current?.getTracks().forEach((track) => track.stop())
+      }
     },
     { onSuccess: props.onSubmit, onSettled: () => setIsRecording(false) }
   )

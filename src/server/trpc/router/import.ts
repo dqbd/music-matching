@@ -163,6 +163,10 @@ export const importRouter = router({
         FingerprintSchema
       )
 
+      await ctx.prisma.song.deleteMany({
+        where: { filepath: input.filepath },
+      })
+
       await ctx.prisma.song.create({
         data: {
           filepath: input.filepath,
