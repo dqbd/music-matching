@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import { ReactNode, useRef, useState } from "react"
+import type { ReactNode } from "react"
+import { useRef, useState } from "react"
 import { css } from "@emotion/react"
 import { Text } from "@mantine/core"
 import { trpc } from "../utils/trpc"
