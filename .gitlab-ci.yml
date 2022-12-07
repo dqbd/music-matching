@@ -12,4 +12,4 @@ before_script:
 build:
   stage: build
   script:
-    - docker build -t vmm .
+    - docker build -t "$CI_REGISTRY_IMAGE" .
