@@ -6,5 +6,3 @@ export const WORKER_PATH = path.resolve(process.env.ROOT!, "research/entry.py")
 export const TMP_DIR_PATH = path.resolve(process.env.ROOT!, "tmp")
 
 export const DATASET_DIR_PATH = path.resolve(process.env.ROOT!, "dataset")
-
-export const PYTHON_BIN_PATH = `/opt/homebrew/bin/python3`

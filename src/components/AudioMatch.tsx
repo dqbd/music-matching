@@ -9,6 +9,7 @@ function AudioMatchPlayer(props: { songId: number }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const canPlayThrough = useRef(false)
 
+  const [loading, setLoading] = useState(false)
   const [playing, setPlaying] = useState(false)
 
   function onToggle() {
@@ -19,7 +20,10 @@ function AudioMatchPlayer(props: { songId: number }) {
       if (!audioRef.current && !canPlayThrough.current) {
         audioRef.current = new Audio(`/api/song/${props.songId}`)
 
+        setLoading(true)
         audioRef.current.addEventListener("canplaythrough", () => {
+          setLoading(false)
+
           canPlayThrough.current = true
 
           audioRef.current?.play()
@@ -79,7 +83,7 @@ function AudioMatchPlayer(props: { songId: number }) {
               fill="#94A3B8"
             />
           </svg>
-          Play
+          {loading ? "Loading" : "Play"}
         </>
       )}
     </Text>
@@ -176,6 +180,7 @@ export const AudioMatch = (props: {
               fontWeight: 700,
               textAlign: "right",
               color: "#94A3B8",
+              whiteSpace: "nowrap",
             }}
           >
             {props.matches} matches

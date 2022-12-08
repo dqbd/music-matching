@@ -13,7 +13,7 @@ class MusicHash(SampleHash):
 
 
 def compare_fingerprints(
-    record_hashes: list[SampleHash], music_hashes: list[MusicHash]
+    record_hashes: list[SampleHash], music_hashes: list[MusicHash], limit=50
 ):
     """
     Figure out matches between two fingerprints
@@ -57,4 +57,4 @@ def compare_fingerprints(
         for song_id, matches in reversed(
             sorted(song_match_count.items(), key=lambda item: item[1])
         )
-    ]
+    ][:limit]

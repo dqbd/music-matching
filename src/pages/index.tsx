@@ -65,6 +65,18 @@ const Home: NextPage = () => {
                 css={css`
                   width: 100%;
 
+                  
+
+                  background: rgba(0, 0, 0, 0.15);
+                  border: 1px solid rgba(255, 255, 255, 0.1);
+                  border-radius: 16px;
+                  min-height: 180px;
+
+                  max-height: 500px;
+                  overflow-y: auto;
+                `}
+              >
+                <div css={css`
                   display: flex;
                   flex-direction: column;
                   align-items: stretch;
@@ -73,35 +85,30 @@ const Home: NextPage = () => {
                   padding-left: 36px;
                   justify-content: center;
                   gap: 12px;
-
-                  background: rgba(0, 0, 0, 0.15);
-                  border: 1px solid rgba(255, 255, 255, 0.1);
-                  border-radius: 16px;
-                  min-height: 180px;
-                `}
-              >
-                {matchMutation.data.length > 0 ? (
-                  <>
-                    {matchMutation.data.map((i, idx) => (
-                      <Fragment key={i.songId}>
-                        <AudioMatch
-                          songId={i.songId}
-                          matches={i.matches}
-                          index={idx < 3 ? idx + 1 : undefined}
-                        />
-                      </Fragment>
-                    ))}
-                  </>
-                ) : (
-                  <span
-                    css={css`
-                      color: #475569;
-                      text-align: center;
-                    `}
-                  >
-                    No Data
-                  </span>
-                )}
+                `}>
+                  {matchMutation.data.length > 0 ? (
+                    <>
+                      {matchMutation.data.map((i, idx) => (
+                        <Fragment key={i.songId}>
+                          <AudioMatch
+                            songId={i.songId}
+                            matches={i.matches}
+                            index={idx < 3 ? idx + 1 : undefined}
+                          />
+                        </Fragment>
+                      ))}
+                    </>
+                  ) : (
+                    <span
+                      css={css`
+                        color: #475569;
+                        text-align: center;
+                      `}
+                    >
+                      No Data
+                    </span>
+                  )}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

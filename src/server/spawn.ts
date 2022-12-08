@@ -1,7 +1,7 @@
-import { PYTHON_BIN_PATH } from "./constants"
 import { spawn } from "node:child_process"
 import type { z } from "zod"
 import type { SpawnOptionsWithoutStdio } from "node:child_process"
+import { env } from "../env/server.mjs"
 
 const spawnAsync = (
   command: string,
@@ -41,6 +41,6 @@ export const spawnWorker = async <T extends z.ZodType>(
   args: readonly string[],
   output: T
 ): Promise<z.infer<T>> => {
-  const exec = await spawnAsync(PYTHON_BIN_PATH, [worker, ...args])
+  const exec = await spawnAsync(env.PYTHON3_PATH, [worker, ...args])
   return output.parse(JSON.parse(exec.stdout.toString("utf-8")))
 }
