@@ -10,6 +10,8 @@ RUN yarn --frozen-lockfile
 ##### BUILDER
 
 FROM node:16 AS builder
+ARG DATABASE_URL
+ARG NEXT_PUBLIC_CLIENTVAR
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules

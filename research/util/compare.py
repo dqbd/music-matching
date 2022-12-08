@@ -23,4 +23,6 @@ def compare_fingerprints(record_hashes, music_hashes):
             delta = abs(time - fingerprint["time"])
             durations[str(delta)] += 1
 
-    return (sorted(durations.values())[-1], len(record_hashes), len(music_hashes))
+    max = sorted(durations.values())[-1]
+
+    return (max, max / min(len(music_hashes), len(record_hashes)))

@@ -5,7 +5,7 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 
 
-def draw_single(music, sr=22_050, n_fft=2_048, hop_length=2_048//4, fig=plt):
+def draw_single(music, sr=22_050, n_fft=2_048, hop_length=2_048//4, ylim=None, fig=plt):
     S = np.abs(librosa.stft(music, n_fft=n_fft, hop_length=hop_length))
 
     all_frames = np.arange(S.shape[1])
@@ -22,12 +22,12 @@ def draw_single(music, sr=22_050, n_fft=2_048, hop_length=2_048//4, fig=plt):
     )
 
     fig.pcolormesh(times, frequencies, librosa.amplitude_to_db(S))
-    fig.set_ylim(0, 3000)
+    fig.set_ylim(0, ylim)
 
 
-def draw_filtered(music, freqs, sr=22_050, n_fft=2_048, hop_length=2_048 // 4, fig=plt):
-    draw_single(music, sr=sr, n_fft=n_fft, hop_length=hop_length, fig=fig)
+def draw_filtered(music, freqs, sr=22_050, n_fft=2_048, hop_length=2_048 // 4, ylim=None, fig=plt):
+    draw_single(music, sr=sr, n_fft=n_fft, hop_length=hop_length, ylim=ylim, fig=fig)
 
     for get_peak_freq, kwargs in freqs:
-        f = get_peak_freq(music, n_fft=n_fft, hop_length=hop_length)
+        f = get_peak_freq(music, sr=sr, n_fft=n_fft, hop_length=hop_length)
         fig.scatter(x=f[:, 1], y=f[:, 0], **kwargs, linewidths=1)

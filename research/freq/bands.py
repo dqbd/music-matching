@@ -2,7 +2,7 @@ import librosa
 import librosa.display
 import numpy as np
 
-LIMITS = np.array([40, 80, 120, 180, 300, np.inf])
+NEW_LIMITS = np.array([250, 520, 1450, 3500, np.inf])
 AVG_WINDOW = 10
 
 
@@ -23,8 +23,7 @@ def get_peak_frequencies_bands(y, sr=22_050, n_fft=2_048, hop_length=2_048//4):
         n_fft=n_fft
     )
 
-    bands = np.array([np.argmax(LIMITS >= freq) for freq in all_bins])
-
+    bands = np.array([np.argmax(NEW_LIMITS >= freq) for freq in frequencies])
     S_out = np.zeros_like(S, dtype=np.bool8)
 
     for band in np.unique(bands):
