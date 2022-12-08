@@ -13,7 +13,7 @@ export const config = {
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const queryId = req.query.songId as string
+    const queryId = Number.parseInt(req.query.songId as string, 10)
     const song = await prisma.song.findFirstOrThrow({ where: { id: queryId } })
 
     if (song.filepath == null) {

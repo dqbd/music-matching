@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Song {
-  id           String        @id @default(cuid())
+  id           Int           @id @default(autoincrement())
   filepath     String
   artists      String
   title        String
@@ -21,11 +21,10 @@ model Song {
 }
 
 model Fingerprint {
-  id     Int    @id @default(autoincrement())
   hash   String
   time   Float
   song   Song   @relation(fields: [songId], references: [id], onDelete: Cascade)
-  songId String
+  songId Int
 
-  @@index([hash, time])
+  @@id([hash, time, songId])
 }

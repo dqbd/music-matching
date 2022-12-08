@@ -5,7 +5,7 @@ import { css } from "@emotion/react"
 import { Text } from "@mantine/core"
 import { trpc } from "../utils/trpc"
 
-function AudioMatchPlayer(props: { songId: string }) {
+function AudioMatchPlayer(props: { songId: number }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const canPlayThrough = useRef(false)
 
@@ -87,7 +87,7 @@ function AudioMatchPlayer(props: { songId: string }) {
 }
 
 export const AudioMatch = (props: {
-  songId: string
+  songId: number
   matches?: number
   index?: ReactNode
 }) => {

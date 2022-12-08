@@ -5,6 +5,7 @@ import { TMP_DIR_PATH, WORKER_PATH } from "../../constants"
 import { promises as fs } from "node:fs"
 import { router, publicProcedure } from "../trpc"
 import { spawnWorker } from "../../spawn"
+import { tmpRemove } from "../../tmp"
 
 const FingerprintSchema = z.array(
   z.object({
@@ -15,7 +16,7 @@ const FingerprintSchema = z.array(
 
 export const songRouter = router({
   get: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.number() }))
     .query(async ({ input, ctx }) => {
       return await ctx.prisma.song.findFirstOrThrow({ where: { id: input.id } })
     }),
@@ -43,30 +44,31 @@ export const songRouter = router({
       })
 
       // run through the pattern matching
-      const recordFilePath = path.resolve(
-        TMP_DIR_PATH,
-        `${input.fileName}.record.json`
-      )
-      const matchFilePath = path.resolve(
-        TMP_DIR_PATH,
-        `${input.fileName}.matched.json`
-      )
+      return await tmpRemove(
+        [
+          path.resolve(TMP_DIR_PATH, `${input.fileName}.record.json`),
+          path.resolve(TMP_DIR_PATH, `${input.fileName}.matched.json`),
+          targetFile,
+        ] as const,
+        async ([recordFilePath, matchFilePath]) => {
+          await Promise.all([
+            fs.writeFile(recordFilePath, JSON.stringify(recordFingerprints)),
+            fs.writeFile(matchFilePath, JSON.stringify(matchFingerprints)),
+          ])
 
-      await Promise.all([
-        fs.writeFile(recordFilePath, JSON.stringify(recordFingerprints)),
-        fs.writeFile(matchFilePath, JSON.stringify(matchFingerprints)),
-      ])
-
-      // compare the file hashes
-      return await spawnWorker(
-        WORKER_PATH,
-        ["match", recordFilePath, matchFilePath],
-        z.array(
-          z.object({
-            songId: z.string(),
-            matches: z.number(),
-          })
-        )
+          // compare the file hashes
+          return await spawnWorker(
+            WORKER_PATH,
+            ["match", recordFilePath, matchFilePath],
+            z.array(
+              z.object({
+                songId: z.number(),
+                matches: z.number(),
+                ratio: z.number(),
+              })
+            )
+          )
+        }
       )
     }),
 })

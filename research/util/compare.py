@@ -9,7 +9,7 @@ class SampleHash(TypedDict):
 
 
 class MusicHash(SampleHash):
-    songId: Optional[str]
+    songId: Optional[int]
 
 
 def compare_fingerprints(
@@ -36,17 +36,14 @@ def compare_fingerprints(
             music_fingerprint
         )
 
-    song_match_count: DefaultDict[str, int] = defaultdict(int)
+    song_match_count: DefaultDict[int, int] = defaultdict(int)
     for song_id, song_hashes in hashes_per_song.items():
-        durations: DefaultDict[str, int] = defaultdict(int)
+        durations: DefaultDict[float, int] = defaultdict(int)
 
         for music_fingerprint in song_hashes:
             for time in time_list[music_fingerprint["hash"]]:
-                delta = abs(time - music_fingerprint["time"])
-                songId = music_fingerprint.get("songId") or "<none>"
-                key_duration = ",".join([songId, str(delta)])
-
-                durations[key_duration] += 1
+                delta: float = abs(time - music_fingerprint["time"])
+                durations[delta] += 1
         song_match_count[song_id] = sorted(durations.values())[-1]
 
     min_hash_count = min(len(music_hashes), len(record_hashes))

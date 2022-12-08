@@ -189,7 +189,7 @@ export const importRouter = router({
               .slice(i, i + 100_000)
               .map(
                 (fingerprint) =>
-                  `('${fingerprint.hash}', ${fingerprint.time}, '${song.id}')`
+                  `('${fingerprint.hash}', ${fingerprint.time}, ${song.id})`
               )
               .join(",")
         )
