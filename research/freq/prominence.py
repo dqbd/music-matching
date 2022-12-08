@@ -4,7 +4,7 @@ import numpy as np
 import scipy.signal
 
 
-def get_peak_frequencies_prominence(y, sr=22_050, n_fft=2_048, hop_length=2_048//4):
+def get_peak_frequencies_prominence(y, sr=22_050, n_fft=2_048, num_peaks=15, distance=100, hop_length=2_048//4):
     """
     Extract peak frequencies for each FFT frame
     """
@@ -25,9 +25,9 @@ def get_peak_frequencies_prominence(y, sr=22_050, n_fft=2_048, hop_length=2_048/
 
     for time_bin, window in enumerate(S.T):
         peaks, props = scipy.signal.find_peaks(
-            window, prominence=0, distance=100)
+            window, prominence=0, distance=distance)
 
-        num_peaks = min(peaks.shape[-1], 15)
+        num_peaks = min(peaks.shape[-1], num_peaks)
         freq_bins = peaks[
             np.argpartition(props["prominences"], -num_peaks)[-num_peaks:]]
 
