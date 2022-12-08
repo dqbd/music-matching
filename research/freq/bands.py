@@ -3,10 +3,9 @@ import librosa.display
 import numpy as np
 
 NEW_LIMITS = np.array([250, 520, 1450, 3500, np.inf])
-AVG_WINDOW = 10
 
 
-def get_peak_frequencies_bands(y, sr=22_050, n_fft=2_048, hop_length=2_048//4):
+def get_peak_frequencies_bands(y, sr=22_050, n_fft=2_048, avg_window=10, hop_length=2_048//4):
     """
     Extract peak frequencies for each FFT frame
     """
@@ -39,7 +38,7 @@ def get_peak_frequencies_bands(y, sr=22_050, n_fft=2_048, hop_length=2_048//4):
         # TODO: consider using moving window average instead
         # TODO: compute the mean only for single frame instead of song for comparison
 
-        window = min(AVG_WINDOW, slice.shape[-1])
+        window = min(avg_window, slice.shape[-1])
         amplitude_threshold_range = np.convolve(
             np.max(slice, axis=0),
             np.ones(window) / window,
