@@ -1,15 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import path from "node:path"
 
-export const WORKER_MATCH_PATH = path.resolve(
-  process.env.ROOT!,
-  "src/worker/shazam_match.py"
-)
-
-export const WORKER_FINGERPRINT_PATH = path.resolve(
-  process.env.ROOT!,
-  "src/worker/shazam_fingerprint.py"
-)
+export const WORKER_PATH = path.resolve(process.env.ROOT!, "research/entry.py")
 
 export const TMP_DIR_PATH = path.resolve(process.env.ROOT!, "tmp")
 

@@ -1,10 +1,6 @@
 import path from "node:path"
 import { z } from "zod"
-import {
-  DATASET_DIR_PATH,
-  TMP_DIR_PATH,
-  WORKER_FINGERPRINT_PATH,
-} from "../../constants"
+import { DATASET_DIR_PATH, TMP_DIR_PATH, WORKER_PATH } from "../../constants"
 
 import { promises as fs } from "node:fs"
 import { router, publicProcedure } from "../trpc"
@@ -31,9 +27,9 @@ const ImportSchema = z.array(
 const ItemSchema = z.object({
   title: z.string(),
   artists: z.string(),
-  album: z.string().nullable(),
+  album: z.string().nullish(),
   filepath: z.string(),
-  coverUrl: z.string().nullable(),
+  coverUrl: z.string().nullish(),
 })
 
 const FingerprintSchema = z.array(
@@ -49,7 +45,7 @@ interface IndexObjectWithFile extends IndexObject {
 }
 
 export const importRouter = router({
-  list: publicProcedure.query(async () => {
+  list: publicProcedure.query(async ({ ctx }) => {
     const filepaths = (await fs.readdir(DATASET_DIR_PATH))
       .filter((i) => path.extname(i).endsWith("wav"))
       .map((i) => path.resolve(DATASET_DIR_PATH, i))
@@ -72,31 +68,37 @@ export const importRouter = router({
         })
       )
       .filter((x): x is IndexObjectWithFile => x.filepath != null)
-      ?.slice(0, 3)
 
-    return z.array(ItemSchema).parse(
-      index.map((item) => {
-        const coverUrl = item.thumbnails.reduce<
-          IndexObjectWithFile["thumbnails"][number] | null
-        >((memo, item) => {
-          if (
-            !memo ||
-            (item?.width ?? 0) > (memo?.width ?? 0) ||
-            (item?.height ?? 0) > (memo?.height ?? 0)
-          )
-            return item
-          return memo
-        }, null)?.url
-
-        return {
-          title: item.title,
-          artists: item.artists.map((i) => i.name).join(", "),
-          album: item.album?.name,
-          filepath: item.filepath,
-          coverUrl,
-        }
-      })
+    const presentFilepaths = new Set(
+      (
+        await ctx.prisma.song.findMany({
+          select: { filepath: true },
+        })
+      ).map((i) => i.filepath)
     )
+
+    return index.map((item) => {
+      const coverUrl = item.thumbnails.reduce<
+        IndexObjectWithFile["thumbnails"][number] | null
+      >((memo, item) => {
+        if (
+          !memo ||
+          (item?.width ?? 0) > (memo?.width ?? 0) ||
+          (item?.height ?? 0) > (memo?.height ?? 0)
+        )
+          return item
+        return memo
+      }, null)?.url
+
+      return {
+        title: item.title,
+        artists: item.artists.map((i) => i.name).join(", "),
+        album: item.album?.name,
+        filepath: item.filepath,
+        isImported: presentFilepaths.has(item.filepath),
+        coverUrl,
+      }
+    })
   }),
 
   process: publicProcedure
@@ -158,27 +160,48 @@ export const importRouter = router({
       }
 
       const fingerprints = await spawnWorker(
-        WORKER_FINGERPRINT_PATH,
-        [input.filepath],
+        WORKER_PATH,
+        ["fingerprint", input.filepath],
         FingerprintSchema
       )
+
+      console.log("Fingerprint hash count", fingerprints.length)
 
       await ctx.prisma.song.deleteMany({
         where: { filepath: input.filepath },
       })
 
-      await ctx.prisma.song.create({
+      const song = await ctx.prisma.song.create({
         data: {
           filepath: input.filepath,
           artists: input.artists,
           title: input.title,
           album: input.album,
           coverImg: coverImg,
-          fingerprints: {
-            create: fingerprints,
-          },
         },
       })
+
+      // chunk into transactions to prevent crashes, optimize for bulk insertion
+      for (let i = 0; i < fingerprints.length; i += 100_000) {
+        await prisma?.$executeRawUnsafe(
+          `INSERT INTO "Fingerprint" ("hash","time","songId") VALUES ` +
+            fingerprints
+              .slice(i, i + 100_000)
+              .map(
+                (fingerprint) =>
+                  `('${fingerprint.hash}', ${fingerprint.time}, '${song.id}')`
+              )
+              .join(",")
+        )
+
+        console.log(
+          "Inserted",
+          i,
+          "to",
+          Math.min(i + 100_000, fingerprints.length),
+          "fingerprints"
+        )
+      }
     }),
   reset: publicProcedure.mutation(async ({ ctx }) => {
     await ctx.prisma.fingerprint.deleteMany()

@@ -20,7 +20,10 @@ const spawnAsync = (
     child.stdin?.on("error", (err) => reject(err))
 
     child.stdout?.on("data", (data: Buffer) => stdout.push(data))
-    child.stderr?.on("data", (data: Buffer) => stderr.push(data))
+    child.stderr?.on("data", (data: Buffer) => {
+      process.stderr.write(data)
+      stderr.push(data)
+    })
 
     child.on("close", (code) => {
       if (code === 0)

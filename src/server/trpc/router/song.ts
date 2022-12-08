@@ -1,10 +1,6 @@
 import path from "node:path"
 import { z } from "zod"
-import {
-  TMP_DIR_PATH,
-  WORKER_FINGERPRINT_PATH,
-  WORKER_MATCH_PATH,
-} from "../../constants"
+import { TMP_DIR_PATH, WORKER_PATH } from "../../constants"
 
 import { promises as fs } from "node:fs"
 import { router, publicProcedure } from "../trpc"
@@ -31,8 +27,8 @@ export const songRouter = router({
 
       // obtain the file hashes
       const recordFingerprints = await spawnWorker(
-        WORKER_FINGERPRINT_PATH,
-        [targetFile],
+        WORKER_PATH,
+        ["fingerprint", targetFile],
         FingerprintSchema
       )
 
@@ -63,8 +59,8 @@ export const songRouter = router({
 
       // compare the file hashes
       return await spawnWorker(
-        WORKER_MATCH_PATH,
-        [recordFilePath, matchFilePath],
+        WORKER_PATH,
+        ["match", recordFilePath, matchFilePath],
         z.array(
           z.object({
             songId: z.string(),

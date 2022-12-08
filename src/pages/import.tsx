@@ -72,7 +72,47 @@ export default function Page() {
         padding: 0 32px;
       `}
     >
-      <h1>Import songs</h1>
+      <div
+        css={css`
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        `}
+      >
+        <h1>Manage songs</h1>
+
+        <div
+          css={css`
+            display: flex;
+            gap: 8px;
+          `}
+        >
+          <Button
+            onClick={() =>
+              setItems((curr) => (curr.length ? [] : list.data ?? []))
+            }
+            disabled={isLoading}
+            variant="subtle"
+          >
+            Select all
+          </Button>
+
+          <Button
+            onClick={() => processAll.mutate(selected)}
+            disabled={isLoading}
+          >
+            Import
+          </Button>
+
+          <Button
+            color="red"
+            onClick={() => reset.mutate()}
+            disabled={isLoading}
+          >
+            Truncate
+          </Button>
+        </div>
+      </div>
 
       <div
         css={css`
@@ -81,74 +121,81 @@ export default function Page() {
           gap: 12px;
         `}
       >
-        {list.data?.map((item) => {
-          const serialized = JSON.stringify(item)
-          const isChecked = selectedJson.includes(serialized)
-
-          return (
-            <div
-              key={item.filepath}
-              css={css`
-                padding: 8px 0;
-              `}
-            >
-              <Checkbox
-                value={item.filepath}
-                checked={isChecked}
-                disabled={isLoading}
-                onChange={(e) => {
-                  if (e.currentTarget.checked) {
-                    setItems([...selected, item])
-                  } else {
-                    setItems(
-                      selected.filter(
-                        (item) => JSON.stringify(item) !== serialized
-                      )
-                    )
-                  }
-                }}
-                label={
-                  <div>
-                    <div>
-                      <div
-                        css={{ display: "flex", gap: 8, alignItems: "center" }}
-                      >
-                        <strong>{item.title}</strong>
-                        {loading[serialized] === "loading" && (
-                          <Badge>Loading</Badge>
-                        )}
-                        {loading[serialized] === "error" && (
-                          <Badge color="red">Error</Badge>
-                        )}
-                        {loading[serialized] === "success" && (
-                          <Badge color="green">Success</Badge>
-                        )}
-                      </div>
-                      <div>{item.artists}</div>
-
-                      <div css={{ display: "flex", gap: 12 }}>
-                        <div>{item.album}</div>
-                      </div>
-
-                      <i>{item.coverUrl ? "With URL Image" : "No URL Image"}</i>
-                    </div>
-                  </div>
-                }
-              />
-            </div>
-          )
-        })}
-
-        <Button
-          onClick={() => processAll.mutate(selected)}
-          disabled={isLoading}
+        <div
+          css={css`
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+          `}
         >
-          Import and fingerprint songs
-        </Button>
+          {list.data?.map((item) => {
+            const serialized = JSON.stringify(item)
+            const isChecked = selectedJson.includes(serialized)
 
-        <Button color="red" onClick={() => reset.mutate()} disabled={isLoading}>
-          Reset all
-        </Button>
+            return (
+              <div
+                key={item.filepath}
+                css={css`
+                  padding: 8px 0;
+                `}
+              >
+                <Checkbox
+                  value={item.filepath}
+                  checked={isChecked}
+                  disabled={isLoading}
+                  onChange={(e) => {
+                    if (e.currentTarget.checked) {
+                      setItems([...selected, item])
+                    } else {
+                      setItems(
+                        selected.filter(
+                          (item) => JSON.stringify(item) !== serialized
+                        )
+                      )
+                    }
+                  }}
+                  label={
+                    <div>
+                      <div>
+                        <div
+                          css={{
+                            display: "flex",
+                            gap: 8,
+                            alignItems: "center",
+                          }}
+                        >
+                          <strong>{item.title}</strong>
+
+                          {loading[serialized] === "loading" && (
+                            <Badge>Loading</Badge>
+                          )}
+                          {loading[serialized] === "error" && (
+                            <Badge color="red">Error</Badge>
+                          )}
+                          {loading[serialized] === "success" && (
+                            <Badge color="green">Success</Badge>
+                          )}
+
+                          {item.isImported && <Badge>Imported</Badge>}
+                        </div>
+
+                        <div>{item.artists}</div>
+
+                        <div css={{ display: "flex", gap: 12 }}>
+                          <div>{item.album}</div>
+                        </div>
+
+                        <i>
+                          {item.coverUrl ? "With URL Image" : "No URL Image"}
+                        </i>
+                      </div>
+                    </div>
+                  }
+                />
+              </div>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

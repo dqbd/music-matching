@@ -9,6 +9,19 @@ services:
       - DATABASE_URL=""
     volumes:
       - tmp:/app/tmp
+  db:
+    restart: always
+    image: postgres:15
+    environment:
+      POSTGRES_DB: vmm
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
 
 volumes:
   tmp:
+  db:

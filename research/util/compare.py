@@ -1,9 +1,20 @@
-
 import numpy as np
 from collections import defaultdict
+from typing import TypedDict, DefaultDict, Optional
 
 
-def compare_fingerprints(record_hashes, music_hashes):
+class SampleHash(TypedDict):
+    time: float
+    hash: str
+
+
+class MusicHash(SampleHash):
+    songId: Optional[str]
+
+
+def compare_fingerprints(
+    record_hashes: list[SampleHash], music_hashes: list[MusicHash]
+):
     """
     Figure out matches between two fingerprints
     - Find the intersection of 2 fingerprints based on their hashes
@@ -12,17 +23,41 @@ def compare_fingerprints(record_hashes, music_hashes):
     - return the number of most hits matching same delta
     """
     # Construct dict from music hashes
-    time_list = defaultdict(list)
+    time_list: DefaultDict[str, list[float]] = defaultdict(list)
 
-    for fingerprint in record_hashes:
-        time_list[fingerprint["hash"]].append(fingerprint["time"])
+    # Create a map of [record hash, list of time captured]
+    for record_fingerprint in record_hashes:
+        time_list[record_fingerprint["hash"]].append(record_fingerprint["time"])
 
-    durations = defaultdict(int)
-    for fingerprint in music_hashes:
-        for time in time_list[fingerprint["hash"]]:
-            delta = abs(time - fingerprint["time"])
-            durations[str(delta)] += 1
+    # Group by song IDs from db hashes
+    hashes_per_song = defaultdict(list)
+    for music_fingerprint in music_hashes:
+        hashes_per_song[music_fingerprint.get("songId", "<none>")].append(
+            music_fingerprint
+        )
 
-    max = sorted(durations.values())[-1]
+    song_match_count: DefaultDict[str, int] = defaultdict(int)
+    for song_id, song_hashes in hashes_per_song.items():
+        durations: DefaultDict[str, int] = defaultdict(int)
 
-    return (max, max / min(len(music_hashes), len(record_hashes)))
+        for music_fingerprint in song_hashes:
+            for time in time_list[music_fingerprint["hash"]]:
+                delta = abs(time - music_fingerprint["time"])
+                songId = music_fingerprint.get("songId") or "<none>"
+                key_duration = ",".join([songId, str(delta)])
+
+                durations[key_duration] += 1
+        song_match_count[song_id] = sorted(durations.values())[-1]
+
+    min_hash_count = min(len(music_hashes), len(record_hashes))
+
+    return [
+        {
+            "songId": song_id,
+            "matches": matches,
+            "ratio": matches / min_hash_count,
+        }
+        for song_id, matches in reversed(
+            sorted(song_match_count.items(), key=lambda item: item[1])
+        )
+    ]

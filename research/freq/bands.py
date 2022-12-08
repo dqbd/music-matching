@@ -1,11 +1,20 @@
 import librosa
 import librosa.display
 import numpy as np
+from typing import Literal
 
+# Bands defined at 11 025 Hz
 NEW_LIMITS = np.array([250, 520, 1450, 3500, np.inf])
 
 
-def get_peak_frequencies_bands(y, sr=22_050, n_fft=2_048, avg_window=10, hop_length=2_048//4):
+def get_peak_frequencies_bands(
+    y,
+    sr=22_050,
+    n_fft=2_048,
+    avg_window=10,
+    hop_length=2_048 // 4,
+    avg_method: Literal["window", "all"] = "window",
+):
     """
     Extract peak frequencies for each FFT frame
     """
@@ -16,13 +25,13 @@ def get_peak_frequencies_bands(y, sr=22_050, n_fft=2_048, avg_window=10, hop_len
 
     frequencies = librosa.fft_frequencies(sr=sr, n_fft=n_fft)
     times = librosa.frames_to_time(
-        all_frames,
-        sr=sr,
-        hop_length=hop_length,
-        n_fft=n_fft
+        all_frames, sr=sr, hop_length=hop_length, n_fft=n_fft
     )
 
-    bands = np.array([np.argmax(NEW_LIMITS >= freq) for freq in frequencies])
+    # scaled bands to meet sampling rate
+    limits = NEW_LIMITS * (sr / 11_025)
+
+    bands = np.array([np.argmax(limits >= freq) for freq in frequencies])
     S_out = np.zeros_like(S, dtype=np.bool8)
 
     for band in np.unique(bands):
@@ -31,19 +40,18 @@ def get_peak_frequencies_bands(y, sr=22_050, n_fft=2_048, avg_window=10, hop_len
 
         slice = S[start_row:end_row]
 
-        # Computing threshold by picking loudest freq in freq slice
-        # and averaging their amplitudes (multiplied by a constant)
-        amplitude_threshold = np.mean(np.max(slice, axis=0))
+        average_mask = None
 
-        # TODO: consider using moving window average instead
-        # TODO: compute the mean only for single frame instead of song for comparison
+        if avg_method == "all":
+            # Computing threshold by picking loudest freq in freq slice
+            # and averaging their amplitudes (multiplied by a constant)
+            average_mask = np.mean(np.max(slice, axis=0))
 
-        window = min(avg_window, slice.shape[-1])
-        amplitude_threshold_range = np.convolve(
-            np.max(slice, axis=0),
-            np.ones(window) / window,
-            mode="same"
-        )
+        if average_mask == "window":
+            window = min(avg_window, slice.shape[-1])
+            average_mask = np.convolve(
+                np.max(slice, axis=0), np.ones(window) / window, mode="same"
+            )
 
         # Max frequency bin index of a slice for each FFT frame
         # Not filtered by mean yet
@@ -51,15 +59,13 @@ def get_peak_frequencies_bands(y, sr=22_050, n_fft=2_048, avg_window=10, hop_len
 
         # Pick only frequencies, if their amplitude is higher than
         # the mean amplitude of the entire band captured from the whole song
-        mask = S[max_freq_bin, all_frames] >= amplitude_threshold_range
+        mask = S[max_freq_bin, all_frames] >= (average_mask or 0)
         S_out[max_freq_bin[mask], all_frames[mask]] = True
 
     result = np.apply_along_axis(
-        lambda key: np.array(
-            [frequencies[key[0]], times[key[1]]]
-        ),
+        lambda key: np.array([key[0], times[key[1]]]),
         1,
-        np.argwhere(S_out > 0)
+        np.argwhere(S_out > 0),
     )
 
     result = result[result[:, 0].argsort()]
