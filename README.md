@@ -1,5 +1,7 @@
 # Obecná audio podobnost (NI-VMM)
 
+Aplikace je k dispozici na této adrese: [https://vmm.duong.cz](https://vmm.duong.cz).
+
 ## Popis projektu
 
 Projekt je zaměřen na implementaci podobnostní míry pro audio skladby. Aplikace by měla obsahovat databázi audio souborů. Uživatel se následně může dotázat vlastním audio dotazem (skrze webové rozhraní) do databáze a aplikace vrátí množinu podobných audio souborů v databázi. V rámci projektu je třeba
@@ -80,6 +82,10 @@ Výsledky porovnávání: ![Výsledky porovnávání](research/images/2022-12-09
 
 Správa skladeb: ![Správa skladeb](research/images/2022-12-09-02-47-14.png)
 
+## Deployment
+
+Pro nasazení jsme použili vlastní VPS, na kterém běží Gitlab Runner. Ten se stará o to, aby při každém commitu se sestavil nový obraz a kontejner skrz příkaz `docker-compose up --build -d`. 
+
 ## Experimentální sekce
 
 V adresáři [`/research`](/research) jsou uloženy ukázky našeho prozkoumávání možností implementace audio podobnosti. Nejdříve jsme začli s vytažením samotných MFCC a následně jejich porovnáváním pomocí algoritmu Dynamic Time Warping (DTW). To se ukázalo jako poměrně výpočetně náročné a tedy i pomalé. Udělali jsme tedy rešerši implementace Shazamu a inspirovali se jejich vytvářením otisků skrz filtrováním spektrogramu. Výsledek je spolehlivější a rychlejší.
@@ -93,6 +99,7 @@ Jako dataset jsme se rozhodli použít vlastní hudební knihovnu exportovanou z
 Spouštění Python skriptů jsme zkoušeli původně implementovat jako mikroslužbu komunikující skrz [RabbitMQ](https://www.rabbitmq.com/) a [Celery](https://docs.celeryq.dev/en/stable/) jobů, to se však ukázalo pro tento projekt zbytečně složité. Oddělením do vlastní mikroslužby dokážeme odstranit cold-start problémy, kdy Python musí načíst všechny závislosti do paměti.
 
 Výsledná implementace ukládá posloupnost vybraných frekvencí jako řetězec oddělený čárkou, což může zabírat zbytečně více místa na disku, než je nutné pro zachování informací. V případě `n_fft = 2048` a `fanout` metody bude pro reprezentaci posloupnosti stačit 20 bitů.
+
 
 ## Závěr
 
