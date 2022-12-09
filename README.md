@@ -4,8 +4,7 @@ Aplikace je k dispozici na této adrese: [https://vmm.duong.cz](https://vmm.duon
 
 ## Popis projektu
 
-Projekt je zaměřen na implementaci podobnostní míry pro audio skladby. Aplikace by měla obsahovat databázi audio souborů. Uživatel se následně může dotázat vlastním audio dotazem (skrze webové rozhraní) do databáze a aplikace vrátí množinu podobných audio souborů v databázi. V rámci projektu je třeba
-naimplementovat extrakci deskriptorů ze zvoleného typu audio souborů a navrhnout a implementovat na nich vlastní podobnostní míru.
+Projekt je zaměřen na implementaci podobnostní míry pro audio skladby. Aplikace by měla obsahovat databázi audio souborů. Uživatel se následně může dotázat vlastním audio dotazem (skrze webové rozhraní) do databáze a aplikace vrátí množinu podobných audio souborů v databázi. V rámci projektu je třeba naimplementovat extrakci deskriptorů ze zvoleného typu audio souborů a navrhnout a implementovat na nich vlastní podobnostní míru.
 
 Vstup: Audio soubor.
 
@@ -22,15 +21,26 @@ Aplikace by měla obsahovat části:
 
 Náš způsob extrakce deskriptorů a jejich následné porovnání je inspirováno aplikací Shazam.
 
-Nejprve přečteme WAV audio soubor a downsamplujeme z 44,100 Hz na 11,050 Hz, s cílem potlačit vliv šumu na výsledek. Následně získaneme spektrogram pomocí krátkodobé Fourierové transformace (Short-Time Fourier Transformation), který analyzuje signál po krátkých časových úsecích. Vzniklý spektrogram rozdělíme na jednotlivé pásma frekvencí: 0-250 Hz, 250-520 Hz, 520-1,450 Hz, 1,450-3,500 Hz, 3,500-5,512 Hz.
+Náš způsob extrakce deskriptorů a jejich následné porovnání je inspirováno aplikací Shazam.
+Nejprve si přečteme a resamplujeme WAV audio soubor z 44,100 Hz na 11,050 Hz s cílem potlačit vliv šumu. Následně získáme spektrogram pomocí krátkodobé Fourierové transformace (Short-Time Fourier Transformation), která analyzuje signál po krátkých časových úsecích. Vzniklý spektrogram rozdělíme na jednotlivé pásma frekvencí: 0-250 Hz, 250-520 Hz, 520-1,450 Hz, 1,450-3,500 Hz, 3,500-5,512 Hz.
 
-Pro zjednodušení chceme ze spektrogramu se spoustou frekvencí o různých intenzitách získat pouze ty frekvence, které jsou pro nás nejdůležitější metodou [`bands`](/research/freq/bands.py): pro každý časový úsek a každé pásmo si vybereme nejintenzivnější frekvenci. Vybereme však pouze frekvence, které mají větší intenzitu než klouzavý průměr vybraných intenzit. Tím dostaneme tzv. peak frequencies. Alternativně jsme v metodě [`prominence`](/research/freq/prominence.py) použili vestavěnou metodu `scipy.signal.find_peaks`, která nalezne lokální maxima a vybere je podle nejvyšší prominence.
+Pro zjednodušení porovnávání chceme ze spektrogramu získat pouze ty frekvence, které jsou pro nás nejdůležitější, tzv. „peak frequencies.“ Pro extrakci jsme implementovali 2 metody:
 
-Vzniklé "peak frequencies" poté seřadíme vzestupně nejprve podle času výskytu a poté podle frekvence. Po jejich seřazení jsme schopni seskupit frekvence do posloupnosti za účelem zvýšení entropie při vyhledávání. V této práci jsme implementovali 2 metody seskupení: [`fanout`](/research/hash/fanout.py), kdy kombinatoricky generujeme páry s rostoucím offsetem a metoda [`cluster`](/research/hash/cluster.py), který posouvá okénko nad seřazenými "peak frequencies." Samotnout posloupnost a čas výskytu první frekvence v posloupnosti pak tvoří tzv. otisk audio nahrávky. Tyto otisky posléze nahráváme do databáze.
+- Metoda [`bands`](/research/freq/bands.py): pro každý časový úsek a každé pásmo si vybereme „nejsilnější“ frekvenci. Z těchto frekvencí vybereme pouze ty, které mají větší intenzitu než klouzavý průměr intenzit vybraných frekvencí,
+- Metoda [`prominence`](/research/freq/prominence.py): použili jsme metodu `scipy.signal.find_peaks`, která nalezne lokální maxima ve spektrogramu pro každý časový úsek a vrátí prvních $N$ frekvencí s nejvyšší prominencí.
 
-Tento postup uděláme pro celý dataset skladeb při nasazení aplikace. Jakmile přijde soubor na vstupu, tak ho zpracujeme stejným způsobem a porovnáme jeho otisky s našimi v databázi. Zároveň využíváme toho faktu, že pro jednu skladbu budou mít páry otisků stejný relativní časový posun. Počet takto shodujících otisků pak bereme jako míru podobnosti mezi vstupem a danou skladnou z datasetu.
+Vzniklé "peak frequencies" poté seřadíme: nejprve vzestupně podle času výskytu a poté vzestupně podle frekvence. Po jejich seřazení jsme schopni seskupit frekvence do pod-posloupnosti ($\text{hash}$) za účelem zvýšení entropie při vyhledávání. V této práci jsme implementovali 2 metody seskupení:
+
+- Metoda [`fanout`](/research/hash/fanout.py), který kombinatoricky generujeme páry s rostoucím offsetem,
+- Metoda [`cluster`](/research/hash/cluster.py), který posouvá okénko nad seřazenou posloupností.
+
+$(\text{hash}, \text{time}(\text{hash}[0]))$ pak tvoří tzv. otisk audio nahrávky, který posléze nahráváme do databáze.
+
+Tento postup provedeme pro celý dataset skladeb při nasazení aplikace. Jakmile přijde nahrávka na vstupu, tak ho zpracujeme stejným způsobem a porovnáme jeho otisky s našimi skladbami v databázi. Získáváme tím páry otisků (otisk nahrávky, otisk skladby z databáze).
 
 ![Offset](research/images/fingerprint_offset.excalidraw.png "Offset")
+
+Pro příklad, nechť ilustrujme 2 nalezené páry otisků. Každý takto nalezený pár se musí shodovat v posloupnosti. Zároveň platí, že pokud 2 páry pocházejí ze stejné skladby, tak jejich rozdíl mezi časovým výskytem otisku v nahrávce a časovým výskytem otisku ve skladbě, bude stejný. Počet takto shodujících párů pak bereme jako míru podobnosti mezi vstupní nahrávkou a danou skladnou z databáze.
 
 ## Implementace
 
@@ -84,7 +94,7 @@ Správa skladeb: ![Správa skladeb](research/images/2022-12-09-02-47-14.png)
 
 ## Deployment
 
-Pro nasazení jsme použili vlastní VPS, na kterém běží Gitlab Runner. Ten se stará o to, aby při každém commitu se sestavil nový obraz a kontejner skrz příkaz `docker-compose up --build -d`. 
+Pro nasazení jsme použili vlastní VPS, na kterém běží Gitlab Runner. Ten se stará o to, aby při každém commitu se sestavil nový obraz a kontejner skrz příkaz `docker-compose up --build -d`.
 
 ## Experimentální sekce
 
@@ -99,7 +109,6 @@ Jako dataset jsme se rozhodli použít vlastní hudební knihovnu exportovanou z
 Spouštění Python skriptů jsme zkoušeli původně implementovat jako mikroslužbu komunikující skrz [RabbitMQ](https://www.rabbitmq.com/) a [Celery](https://docs.celeryq.dev/en/stable/) jobů, to se však ukázalo pro tento projekt zbytečně složité. Oddělením do vlastní mikroslužby dokážeme odstranit cold-start problémy, kdy Python musí načíst všechny závislosti do paměti.
 
 Výsledná implementace ukládá posloupnost vybraných frekvencí jako řetězec oddělený čárkou, což může zabírat zbytečně více místa na disku, než je nutné pro zachování informací. V případě `n_fft = 2048` a `fanout` metody bude pro reprezentaci posloupnosti stačit 20 bitů.
-
 
 ## Závěr
 
