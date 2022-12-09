@@ -8,6 +8,7 @@ import { contentType } from "mime-types"
 export const config = {
   api: {
     bodyParser: false,
+    responseLimit: false
   },
 }
 

@@ -1,6 +1,6 @@
 ##### DEPENDENCIES
 
-FROM node:16 AS deps
+FROM node:16-bullseye AS deps
 RUN apt-get update && apt-get install openssl python3 python3-pip -y
 WORKDIR /app
 
@@ -9,9 +9,9 @@ RUN yarn --frozen-lockfile
 
 ##### BUILDER
 
-FROM node:16 AS builder
+FROM node:16-bullseye AS builder
 ARG DATABASE_URL
-ARG NEXT_PUBLIC_CLIENTVAR
+ARG PYTHON3_PATH
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -21,11 +21,14 @@ RUN SKIP_ENV_VALIDATION=1 yarn build
 
 ##### RUNNER
 
-FROM node:16 AS runner
-RUN apt-get update && apt-get install openssl python3 python3-pip -y
+FROM node:16-bullseye AS runner
+RUN apt-get update && apt-get install openssl python3 python3-pip libsndfile1-dev -y
 WORKDIR /app
 
 ENV NODE_ENV production
+
+COPY --from=builder /app/requirements.txt ./requirements.txt
+RUN pip3 install -r requirements.txt
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -36,8 +39,12 @@ COPY --from=builder /app/package.json ./package.json
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/research ./research
 
+RUN mkdir tmp && chgrp -R nodejs tmp && chown -R nextjs tmp
 USER nextjs
+VOLUME tmp
+
 EXPOSE 3000
 ENV PORT 3000
 

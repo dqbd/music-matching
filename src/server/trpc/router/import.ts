@@ -183,7 +183,7 @@ export const importRouter = router({
 
       // chunk into transactions to prevent crashes, optimize for bulk insertion
       for (let i = 0; i < fingerprints.length; i += 100_000) {
-        await prisma?.$executeRawUnsafe(
+        await ctx.prisma.$executeRawUnsafe(
           `INSERT INTO "Fingerprint" ("hash","time","songId") VALUES ` +
             fingerprints
               .slice(i, i + 100_000)

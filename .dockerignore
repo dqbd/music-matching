@@ -6,6 +6,11 @@ npm-debug.log
 .next
 .git
 dataset
-research
 tmp
 README.md
+research/*.ipynb
+research/samples
+research/images
+research/samples
+.ipynb_checkpoints
+__pycache__

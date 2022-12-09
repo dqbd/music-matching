@@ -1,5 +1,4 @@
 import librosa
-import librosa.display
 import numpy as np
 from typing import Literal
 

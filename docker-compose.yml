@@ -6,9 +6,13 @@ services:
     ports:
       - "80:3000"
     environment:
-      - DATABASE_URL=""
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/vmm
+      - PYTHON3_PATH=/usr/bin/python3
     volumes:
       - tmp:/app/tmp
+      # - ./dataset:/app/dataset
+    depends_on:
+      - db
   db:
     restart: always
     image: postgres:15
