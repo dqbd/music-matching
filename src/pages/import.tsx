@@ -77,6 +77,12 @@ export default function Page() {
           display: flex;
           align-items: center;
           justify-content: space-between;
+
+          background: white;
+          position: sticky;
+          top: 0;
+
+          z-index: 1;
         `}
       >
         <h1>Manage songs</h1>
