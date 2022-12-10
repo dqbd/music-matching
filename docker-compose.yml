@@ -10,7 +10,6 @@ services:
       - PYTHON3_PATH=/usr/bin/python3
     volumes:
       - tmp:/app/tmp
-      # - ./dataset:/app/dataset
     depends_on:
       - db
   db:

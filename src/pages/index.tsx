@@ -65,8 +65,6 @@ const Home: NextPage = () => {
                 css={css`
                   width: 100%;
 
-                  
-
                   background: rgba(0, 0, 0, 0.15);
                   border: 1px solid rgba(255, 255, 255, 0.1);
                   border-radius: 16px;
@@ -76,16 +74,18 @@ const Home: NextPage = () => {
                   overflow-y: auto;
                 `}
               >
-                <div css={css`
-                  display: flex;
-                  flex-direction: column;
-                  align-items: stretch;
+                <div
+                  css={css`
+                    display: flex;
+                    flex-direction: column;
+                    align-items: stretch;
 
-                  padding: 24px;
-                  padding-left: 36px;
-                  justify-content: center;
-                  gap: 12px;
-                `}>
+                    padding: 24px;
+                    padding-left: 36px;
+                    justify-content: center;
+                    gap: 12px;
+                  `}
+                >
                   {matchMutation.data.length > 0 ? (
                     <>
                       {matchMutation.data.map((i, idx) => (
