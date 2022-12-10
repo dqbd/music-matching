@@ -98,7 +98,30 @@ Pro nasazení jsme použili vlastní VPS, na kterém běží Gitlab Runner. Ten 
 
 V adresáři [`/research`](/research) jsou uloženy ukázky našeho prozkoumávání možností implementace audio podobnosti. Nejdříve jsme začli s vytažením samotných MFCC a následně jejich porovnáváním pomocí algoritmu Dynamic Time Warping (DTW). To se ukázalo jako poměrně výpočetně náročné a tedy i pomalé. Udělali jsme tedy rešerši implementace Shazamu a inspirovali se jejich vytvářením otisků skrz filtrováním spektrogramu. Výsledek je spolehlivější a rychlejší.
 
-TODO: možná přidat experimentální srovnání implementací.
+Pro testování jsme použili následující audio soubory: [originální skladbu](/research/samples/music.wav) a [nahrávku originální skladby](/research/samples/record.wav).
+
+|           |                    | `prominence` | `bands` |
+| --------- | ------------------ | ------------ | ------- |
+| `cluster` | Počet shod         | 41           | 53      |
+|           | Procentuální shoda | 2.497%       | 4.5377% |
+| `fanout`  | Počet shod         | 2255         | 2154    |
+|           | Procentuální shoda | 3.5859%      | 6.1009% |
+
+Použili jsme následující parametry:
+
+| Funkce       | Parametr      | Hodnota |
+| ------------ | ------------- | ------- |
+| `bands`      | `avg_window`  | 10      |
+| `prominence` | `num_peaks`   | 15      |
+|              | `distnace`    | 100     |
+| `fanout`     | `fan_out`     | 50      |
+|              | `tail_size`   | 1       |
+| `cluster`    | `window_size` | 3       |
+|              | `gap_size`    | 1       |
+
+Je zjevné, že kombinace metod `bands` a `fanout` vede k největší procentuální shodě na testovacích souborech.
+
+Co se týče tvorby otisků a výpočetní složitosti, tak metoda `fanout` je zjevně výpočetně náročnější: $O(N \times \text{fan\_out})$ u metody `fanout`, kde $N$ je počet frekvencí oproti $O(N)$ u metody `cluster`.
 
 ## Diskuze
 
