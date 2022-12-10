@@ -123,6 +123,10 @@ Je zjevné, že kombinace metod `bands` a `fanout` vede k největší procentuá
 
 Co se týče tvorby otisků a výpočetní složitosti, tak metoda `fanout` je zjevně výpočetně náročnější: O(N x fan_out) u metody `fanout`, kde N je počet frekvencí oproti O(N) u metody `cluster`.
 
+![Obrázek spektrogramu](/research/images/spectrogram.png)
+
+Na spektrogramu obou audio souborů můžeme pozorovat, že metoda `prominence` zachová více frekvencí ze spektrogramu než metoda `bands`, což ovšem nutně nevede k lepší procentuální shodě.
+
 ## Diskuze
 
 Jako dataset jsme se rozhodli použít vlastní hudební knihovnu exportovanou ze služby Youtube Music. Kvůli nadměrné velikosti jsme ji však neukládali do repozitáře. Způsob přidání datasetu je tedy skrze lokální složky [`/dataset`](/dataset). Do budoucna by bylo rozumné rozšířit administraci o možnost nahrání skladby přímo v prohlížeči.
