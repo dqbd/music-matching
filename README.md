@@ -113,7 +113,7 @@ Použili jsme následující parametry:
 | ------------ | ------------- | ------- |
 | `bands`      | `avg_window`  | 10      |
 | `prominence` | `num_peaks`   | 15      |
-|              | `distnace`    | 100     |
+|              | `distanace`   | 100     |
 | `fanout`     | `fan_out`     | 50      |
 |              | `tail_size`   | 1       |
 | `cluster`    | `window_size` | 3       |
