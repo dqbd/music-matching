@@ -25,14 +25,14 @@ Nejprve si přečteme a resamplujeme WAV audio soubor z 44,100 Hz na 11,050 Hz s
 Pro zjednodušení porovnávání chceme ze spektrogramu získat pouze ty frekvence, které jsou pro nás nejdůležitější, tzv. „peak frequencies.“ Pro extrakci jsme implementovali 2 metody:
 
 - Metoda [`bands`](/research/freq/bands.py): pro každý časový úsek a každé pásmo si vybereme „nejsilnější“ frekvenci. Z těchto frekvencí vybereme pouze ty, které mají větší intenzitu než klouzavý průměr intenzit vybraných frekvencí,
-- Metoda [`prominence`](/research/freq/prominence.py): použili jsme metodu `scipy.signal.find_peaks`, která nalezne lokální maxima ve spektrogramu pro každý časový úsek a vrátí prvních $N$ frekvencí s nejvyšší prominencí.
+- Metoda [`prominence`](/research/freq/prominence.py): použili jsme metodu `scipy.signal.find_peaks`, která nalezne lokální maxima ve spektrogramu pro každý časový úsek a vrátí prvních N frekvencí s nejvyšší prominencí.
 
-Vzniklé "peak frequencies" poté seřadíme: nejprve vzestupně podle času výskytu a poté vzestupně podle frekvence. Po jejich seřazení jsme schopni seskupit frekvence do pod-posloupnosti ($\text{hash}$) za účelem zvýšení entropie při vyhledávání. V této práci jsme implementovali 2 metody seskupení:
+Vzniklé "peak frequencies" poté seřadíme: nejprve vzestupně podle času výskytu a poté vzestupně podle frekvence. Po jejich seřazení jsme schopni seskupit frekvence do pod-posloupnosti (hash) za účelem zvýšení entropie při vyhledávání. V této práci jsme implementovali 2 metody seskupení:
 
 - Metoda [`fanout`](/research/hash/fanout.py), který kombinatoricky generujeme páry s rostoucím offsetem,
 - Metoda [`cluster`](/research/hash/cluster.py), který posouvá okénko nad seřazenou posloupností.
 
-$(\text{hash}, \text{time}(\text{hash}[0]))$ pak tvoří tzv. otisk audio nahrávky, který posléze nahráváme do databáze.
+`(hash, time(hash[0]))` pak tvoří tzv. otisk audio nahrávky, který posléze nahráváme do databáze.
 
 Tento postup provedeme pro celý dataset skladeb při nasazení aplikace. Jakmile přijde nahrávka na vstupu, tak ho zpracujeme stejným způsobem a porovnáme jeho otisky s našimi skladbami v databázi. Získáváme tím páry otisků (otisk nahrávky, otisk skladby z databáze).
 
@@ -121,7 +121,7 @@ Použili jsme následující parametry:
 
 Je zjevné, že kombinace metod `bands` a `fanout` vede k největší procentuální shodě na testovacích souborech.
 
-Co se týče tvorby otisků a výpočetní složitosti, tak metoda `fanout` je zjevně výpočetně náročnější: $O(N \times \text{fan\_out})$ u metody `fanout`, kde $N$ je počet frekvencí oproti $O(N)$ u metody `cluster`.
+Co se týče tvorby otisků a výpočetní složitosti, tak metoda `fanout` je zjevně výpočetně náročnější: O(N x fan_out) u metody `fanout`, kde N je počet frekvencí oproti O(N) u metody `cluster`.
 
 ## Diskuze
 
