@@ -20,8 +20,6 @@ Aplikace by měla obsahovat části:
 ## Způsob řešení
 
 Náš způsob extrakce deskriptorů a jejich následné porovnání je inspirováno aplikací Shazam.
-
-Náš způsob extrakce deskriptorů a jejich následné porovnání je inspirováno aplikací Shazam.
 Nejprve si přečteme a resamplujeme WAV audio soubor z 44,100 Hz na 11,050 Hz s cílem potlačit vliv šumu. Následně získáme spektrogram pomocí krátkodobé Fourierové transformace (Short-Time Fourier Transformation), která analyzuje signál po krátkých časových úsecích. Vzniklý spektrogram rozdělíme na jednotlivé pásma frekvencí: 0-250 Hz, 250-520 Hz, 520-1,450 Hz, 1,450-3,500 Hz, 3,500-5,512 Hz.
 
 Pro zjednodušení porovnávání chceme ze spektrogramu získat pouze ty frekvence, které jsou pro nás nejdůležitější, tzv. „peak frequencies.“ Pro extrakci jsme implementovali 2 metody:
