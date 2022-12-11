@@ -11,7 +11,7 @@ import { contentType } from "mime-types"
 export const config = {
   api: {
     bodyParser: false,
-    responseLimit: false
+    responseLimit: false,
   },
 }
 
@@ -25,7 +25,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       return
     }
 
-    const mime = contentType(song.coverImg)
+    const mime = contentType(path.extname(song.coverImg))
     if (!mime) throw new Error("Invalid mime type")
 
     const filepath = path.resolve(TMP_DIR_PATH, song.coverImg)

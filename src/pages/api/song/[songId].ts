@@ -1,6 +1,7 @@
 import { type NextApiRequest, type NextApiResponse } from "next"
 
 import fs from "node:fs/promises"
+import path from "node:path"
 
 import { prisma } from "../../../server/db/client"
 import { contentType } from "mime-types"
@@ -8,7 +9,7 @@ import { contentType } from "mime-types"
 export const config = {
   api: {
     bodyParser: false,
-    responseLimit: false
+    responseLimit: false,
   },
 }
 
@@ -22,7 +23,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       return
     }
 
-    const mime = contentType(song.filepath)
+    const mime = contentType(path.extname(song.filepath))
     if (!mime) throw new Error("Invalid mime type")
 
     res.setHeader("Content-Type", mime)
