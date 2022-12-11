@@ -43,8 +43,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/research ./research
 
 RUN mkdir tmp && chgrp -R nodejs tmp && chown -R nextjs tmp
+RUN mkdir dataset && chgrp -R nodejs dataset && chown -R nextjs dataset
+
 USER nextjs
 VOLUME tmp
+VOLUME dataset
 
 EXPOSE 3000
 ENV PORT 3000
