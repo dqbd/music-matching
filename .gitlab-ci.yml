@@ -3,8 +3,6 @@ variables:
 
 build:
   stage: build
-  variables:
-    DOCKER_COMPOSE_OVERRIDE: $DOCKER_COMPOSE_OVERRIDE
   script:
     - pwd
     - cp "$DOCKER_COMPOSE_OVERRIDE" docker-compose.override.yml
