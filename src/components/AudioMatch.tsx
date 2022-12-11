@@ -126,6 +126,7 @@ export const AudioMatch = (props: {
             height={72}
             css={css`
               border-radius: 6px;
+              object-fit: cover;
               border: 1px solid rgba(255, 255, 255, 0.05);
             `}
           />
@@ -161,10 +162,20 @@ export const AudioMatch = (props: {
         </div>
       )}
 
-      <div css={{ display: "flex", justifyContent: "space-between" }}>
-        <div>
+      <div
+        css={{ display: "flex", justifyContent: "space-between", minWidth: 0 }}
+      >
+        <div css={{ minWidth: 0, overflow: "hidden" }}>
           <Text
-            css={{ lineHeight: "1.4em", fontWeight: 700, color: "#F1F5F9" }}
+            css={{
+              lineHeight: "1.4em",
+              fontWeight: 700,
+              color: "#F1F5F9",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              marginRight: 16,
+            }}
           >
             {music.data.title}
           </Text>
