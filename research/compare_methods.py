@@ -54,8 +54,10 @@ def get_results(recording, music, freq_method: Literal["bands", "prominence"], h
     results[freq_method][hash_method]["hashes"]["time"] = (time.process_time() - start_time) * 1000
 
     start_time = time.process_time()
-    results[freq_method][hash_method]["compare"]["matches_correct" if is_correct else "matches_incorrect"] = compare_fingerprints(recording_hashes, music_hashes)[0]["matches"]
+    fingerprints_results = compare_fingerprints(recording_hashes, music_hashes)[0]
     results[freq_method][hash_method]["compare"]["time_correct" if is_correct else "time_incorrect"] = (time.process_time() - start_time) * 1000
+    results[freq_method][hash_method]["compare"]["matches_correct" if is_correct else "matches_incorrect"] = fingerprints_results["matches"]
+    results[freq_method][hash_method]["compare"]["ratio_correct" if is_correct else "ratio_incorrect"] = fingerprints_results["ratio"]
 
 
 music_file = "../dataset/6-24-music.wav"

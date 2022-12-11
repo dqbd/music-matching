@@ -80,15 +80,15 @@ Samotný import se provádí na adrese [`/import`](https://vmm.duong.cz/import) 
 
 ## Příklad výstupu
 
-Úvodní stránka: ![Úvodní stránka](research/images/2022-12-09-02-49-35.png)
+Úvodní stránka: ![Úvodní stránka](research/images/home_page.png)
 
-Nahrávání z mikrofonu: ![Nahrávání z mikrofonu](research/images/2022-12-09-02-51-40.png)
+Nahrávání z mikrofonu: ![Nahrávání z mikrofonu](research/images/mic_recording.png)
 
-Porovnávání záznamů: ![Porovnávání záznamů](research/images/2022-12-09-02-50-41.png)
+Porovnávání záznamů: ![Porovnávání záznamů](research/images/comparing_records.png)
 
-Výsledky porovnávání: ![Výsledky porovnávání](research/images/2022-12-09-02-51-09.png)
+Výsledky porovnávání: ![Výsledky porovnávání](research/images/results.png)
 
-Správa skladeb: ![Správa skladeb](research/images/2022-12-09-02-47-14.png)
+Správa skladeb: ![Správa skladeb](research/images/import_songs.png)
 
 ## Deployment
 
@@ -119,13 +119,26 @@ Použili jsme následující parametry:
 | `cluster`    | `window_size` | 3       |
 |              | `gap_size`    | 1       |
 
-Je zjevné, že kombinace metod `bands` a `fanout` vede k největší procentuální shodě na testovacích souborech.
+Je zjevné, že kombinace metod `bands` a `fanout` vede k největší procentuální shodě na testovacích souborech. 
 
 Co se týče tvorby otisků a výpočetní složitosti, tak metoda `fanout` je zjevně výpočetně náročnější: O(N x fan_out) u metody `fanout`, kde N je počet frekvencí oproti O(N) u metody `cluster`.
 
 ![Obrázek spektrogramu](/research/images/spectrogram.png)
 
 Na spektrogramu obou audio souborů můžeme pozorovat, že metoda `prominence` zachová více frekvencí ze spektrogramu než metoda `bands`, což ovšem nutně nevede k lepší procentuální shodě.
+
+### Fanout
+Při experimentování s jednotlivými parametry algoritmu se ukázalo, že poměrně důležitý je parametr metody `fanout`, tedy hodnota o kterou se zvyšuje offset použitý při porovnávání otisků metody `fanout`.
+
+![Graf parametru fanout vzhledem k procentuální shodě](research/images/graph_fanout_ratio.png)
+
+![Graf parametru fanout vzhledem k počtu otisků](research/images/graph_fanout_fingerprints.png)
+
+![Graf parametru fanout vzhledem k době výpočtu](research/images/graph_fanout_time.png)
+
+Na uvedených grafech můžeme vidět že navýšení parametru `fanout` zvyšuje míru procentuální shody ale také množství vygenerovaných otisků pro skladby a tedy i dobu výpočtu a porovnání. 
+
+V praxi by tak jeho navýšení znamenalo neúnosnou zátěž na pamět. Rozhodli jsme se ho tedy ponechat na hodnotě 10. Už při této hodnotě máme při 205 skladbách v knihovně 47 milionů záznamů otisků v databázi.
 
 ## Diskuze
 
