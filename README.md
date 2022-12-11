@@ -148,7 +148,7 @@ Spouštění Python skriptů jsme zkoušeli původně implementovat jako mikrosl
 
 Výsledná implementace ukládá posloupnost vybraných frekvencí jako řetězec oddělený čárkou, což může zabírat zbytečně více místa na disku, než je nutné pro zachování informací. V případě `n_fft = 2048` a `fanout` metody bude pro reprezentaci posloupnosti stačit 20 bitů.
 
-Jako databázi jsme použili SQLite především kvůli přenositelnosti a jednoduchosti importu. S PostgreSQL a MySQL jsme narazili na problémy s nedostatkem paměti při hromadném nahrávání otisků. Finální databáze s 264 skladbami obsahuje přes 46 miliónů otisků.
+Jako databázi jsme použili SQLite především kvůli přenositelnosti a jednoduchosti importu. S PostgreSQL a MySQL jsme narazili na problémy s nedostatkem paměti při hromadném nahrávání otisků. Finální databáze s 264 skladbami obsahuje přes 47 miliónů otisků.
 
 ## Závěr
 

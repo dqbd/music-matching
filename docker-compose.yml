@@ -6,7 +6,7 @@ services:
     ports:
       - "80:3000"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/vmm
+      - DATABASE_URL=file:../tmp/db.sqlite
       - PYTHON3_PATH=/usr/bin/python3
       - SQLITE3_PATH=/usr/bin/sqlite3
     volumes:
