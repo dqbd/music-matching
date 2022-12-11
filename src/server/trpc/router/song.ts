@@ -35,12 +35,15 @@ export const songRouter = router({
 
       console.log("Matching fingerprint for file", targetFile)
 
+      const recordHashes = recordFingerprints.map((i) => i.hash)
+      const uniqueHashes = [...new Set(recordHashes)]
+
+      console.log(
+        `Reduced hash size from ${recordHashes.length} to ${uniqueHashes.length}`
+      )
+
       const matchFingerprints = await ctx.prisma.fingerprint.findMany({
-        where: {
-          hash: {
-            in: recordFingerprints.map((i) => i.hash),
-          },
-        },
+        where: { hash: { in: uniqueHashes } },
       })
 
       console.log("Database returned fingerprints", matchFingerprints.length)
