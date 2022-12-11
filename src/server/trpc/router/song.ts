@@ -43,6 +43,8 @@ export const songRouter = router({
         },
       })
 
+      console.log("Database returned fingerprints", matchFingerprints.length)
+
       // run through the pattern matching
       return await tmpRemove(
         [
@@ -51,10 +53,14 @@ export const songRouter = router({
           targetFile,
         ] as const,
         async ([recordFilePath, matchFilePath]) => {
+          console.log("Saving fingerprints for Python")
+
           await Promise.all([
             fs.writeFile(recordFilePath, JSON.stringify(recordFingerprints)),
             fs.writeFile(matchFilePath, JSON.stringify(matchFingerprints)),
           ])
+
+          console.log("Launching Python")
 
           // compare the file hashes
           return await spawnWorker(
