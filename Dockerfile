@@ -46,8 +46,6 @@ RUN mkdir tmp && chgrp -R nodejs tmp && chown -R nextjs tmp
 RUN mkdir dataset && chgrp -R nodejs dataset && chown -R nextjs dataset
 
 USER nextjs
-VOLUME tmp
-VOLUME dataset
 
 EXPOSE 3000
 ENV PORT 3000
