@@ -3,7 +3,7 @@ import type { z } from "zod"
 import type { SpawnOptionsWithoutStdio } from "node:child_process"
 import { env } from "../env/server.mjs"
 
-const spawnAsync = (
+export const spawnAsync = (
   command: string,
   args?: readonly string[],
   options?: SpawnOptionsWithoutStdio

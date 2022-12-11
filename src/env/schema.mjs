@@ -8,6 +8,7 @@ import { z } from "zod"
 export const serverSchema = z.object({
   DATABASE_URL: z.string().url(),
   PYTHON3_PATH: z.string(),
+  SQLITE3_PATH: z.string(),
   NODE_ENV: z.enum(["development", "test", "production"]),
 })
 

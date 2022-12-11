@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { css } from "@emotion/react"
 import { Badge, Button, Checkbox } from "@mantine/core"
 import { useMutation } from "@tanstack/react-query"
@@ -7,36 +8,38 @@ import { trpc } from "../utils/trpc"
 
 type SelectedItemList = Exclude<RouterOutputs["import"]["list"], undefined>
 
-export default function Page() {
-  const list = trpc.import.list.useQuery()
+const serialize = ({ isImported, ...a }: Record<string, unknown>) =>
+  JSON.stringify(a)
 
+export default function Page() {
   const [selected, setItems] = useState<SelectedItemList>([])
 
   const reset = trpc.import.reset.useMutation()
 
-  const selectedJson = selected.map((i) => JSON.stringify(i))
+  const selectedJson = selected.map((i) => serialize(i))
 
   const [loading, setLoading] = useState<
     Record<string, "loading" | "success" | "error">
   >({})
 
-  const process = trpc.import.process.useMutation({
+  const database = trpc.import.database.useMutation()
+  const process = trpc.import.fingerprint.useMutation({
     onMutate: (variables) => {
       setLoading((record) => ({
         ...record,
-        [JSON.stringify(variables)]: "loading",
+        [serialize(variables)]: "loading",
       }))
     },
     onSuccess: (_, variables) => {
       setLoading((record) => ({
         ...record,
-        [JSON.stringify(variables)]: "success",
+        [serialize(variables)]: "success",
       }))
     },
     onError: (_, variables) => {
       setLoading((record) => ({
         ...record,
-        [JSON.stringify(variables)]: "error",
+        [serialize(variables)]: "error",
       }))
     },
   })
@@ -45,8 +48,8 @@ export default function Page() {
     async (selected: SelectedItemList) => {
       const slices: SelectedItemList[] = []
 
-      for (let i = 0; i < selected.length; i += 4) {
-        slices.push(selected.slice(i, i + 4))
+      for (let i = 0; i < selected.length; i += 8) {
+        slices.push(selected.slice(i, i + 8))
       }
 
       for (const slice of slices) {
@@ -60,7 +63,10 @@ export default function Page() {
     }
   )
 
-  const isLoading = reset.isLoading || processAll.isLoading
+  const isLoading =
+    reset.isLoading || processAll.isLoading || database.isLoading
+
+  const list = trpc.import.list.useQuery(undefined, { enabled: !isLoading })
 
   return (
     <div
@@ -104,10 +110,31 @@ export default function Page() {
           </Button>
 
           <Button
+            onClick={() =>
+              setItems((curr) =>
+                curr.length
+                  ? []
+                  : list.data?.filter((i) => !i.isFingerprinted) ?? []
+              )
+            }
+            disabled={isLoading}
+            variant="subtle"
+          >
+            Select missing
+          </Button>
+
+          <Button
             onClick={() => processAll.mutate(selected)}
             disabled={isLoading}
           >
-            Import
+            Fingerprint
+          </Button>
+
+          <Button
+            onClick={() => database.mutate(selected)}
+            disabled={isLoading}
+          >
+            Insert
           </Button>
 
           <Button
@@ -135,7 +162,7 @@ export default function Page() {
           `}
         >
           {list.data?.map((item) => {
-            const serialized = JSON.stringify(item)
+            const serialized = serialize(item)
             const isChecked = selectedJson.includes(serialized)
 
             return (
@@ -155,7 +182,7 @@ export default function Page() {
                     } else {
                       setItems(
                         selected.filter(
-                          (item) => JSON.stringify(item) !== serialized
+                          (item) => serialize(item) !== serialized
                         )
                       )
                     }
@@ -172,17 +199,17 @@ export default function Page() {
                         >
                           <strong>{item.title}</strong>
 
-                          {loading[serialized] === "loading" && (
-                            <Badge>Loading</Badge>
-                          )}
-                          {loading[serialized] === "error" && (
-                            <Badge color="red">Error</Badge>
-                          )}
-                          {loading[serialized] === "success" && (
-                            <Badge color="green">Success</Badge>
-                          )}
-
-                          {item.isImported && <Badge>Imported</Badge>}
+                          <div>
+                            {item.isFingerprinted && (
+                              <Badge color="green">Fingerprinted</Badge>
+                            )}
+                            {loading[serialized] === "loading" && (
+                              <Badge>Loading</Badge>
+                            )}
+                            {loading[serialized] === "error" && (
+                              <Badge color="red">Error</Badge>
+                            )}
+                          </div>
                         </div>
 
                         <div>{item.artists}</div>

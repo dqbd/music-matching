@@ -8,23 +8,9 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/vmm
       - PYTHON3_PATH=/usr/bin/python3
+      - SQLITE3_PATH=/usr/bin/sqlite3
     volumes:
       - tmp:/app/tmp
-    depends_on:
-      - db
-  db:
-    restart: always
-    image: postgres:15
-    environment:
-      POSTGRES_DB: vmm
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_HOST_AUTH_METHOD: trust
-    ports:
-      - "5432:5432"
-    volumes:
-      - db:/var/lib/postgresql/data
 
 volumes:
   tmp:
-  db:

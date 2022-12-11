@@ -12,6 +12,7 @@ RUN yarn --frozen-lockfile
 FROM node:16-bullseye AS builder
 ARG DATABASE_URL
 ARG PYTHON3_PATH
+ARG SQLITE3_PATH
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -22,7 +23,7 @@ RUN SKIP_ENV_VALIDATION=1 yarn build
 ##### RUNNER
 
 FROM node:16-bullseye AS runner
-RUN apt-get update && apt-get install openssl python3 python3-pip libsndfile1-dev -y
+RUN apt-get update && apt-get install openssl python3 python3-pip libsndfile1-dev sqlite3 -y
 WORKDIR /app
 
 ENV NODE_ENV production

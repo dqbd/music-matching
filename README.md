@@ -52,7 +52,7 @@ Spouštění Python skriptu probíhá skrze Node.js funkci [child_process.spawn]
 
 Webové rozhraní je React aplikace využívající [Create-T3-app](https://create.t3.gg/).
 
-Pro ukládání hashů a metadat o skladbách používáme knihovnu [Prisma](https://www.prisma.io/) a [PostgreSQL](https://www.postgresql.org/).
+Pro ukládání hashů a metadat o skladbách používáme knihovnu [Prisma](https://www.prisma.io/) a [SQLite](https://sqlite.org/).
 
 ## Spouštění
 
@@ -134,6 +134,8 @@ Jako dataset jsme se rozhodli použít vlastní hudební knihovnu exportovanou z
 Spouštění Python skriptů jsme zkoušeli původně implementovat jako mikroslužbu komunikující skrz [RabbitMQ](https://www.rabbitmq.com/) a [Celery](https://docs.celeryq.dev/en/stable/) jobů, to se však ukázalo pro tento projekt zbytečně složité. Oddělením do vlastní mikroslužby dokážeme odstranit cold-start problémy, kdy Python musí načíst všechny závislosti do paměti.
 
 Výsledná implementace ukládá posloupnost vybraných frekvencí jako řetězec oddělený čárkou, což může zabírat zbytečně více místa na disku, než je nutné pro zachování informací. V případě `n_fft = 2048` a `fanout` metody bude pro reprezentaci posloupnosti stačit 20 bitů.
+
+Jako databázi jsme použili SQLite především kvůli přenositelnosti a jednoduchosti importu. S PostgreSQL a MySQL jsme narazili na problémy s nedostatkem paměti při hromadném nahrávání otisků. Finální databáze s 264 skladbami obsahuje přes 46 miliónů otisků.
 
 ## Závěr
 
