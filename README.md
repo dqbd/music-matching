@@ -1,7 +1,5 @@
 # Obecná audio podobnost (NI-VMM)
 
-Aplikace je k dispozici na této adrese: [https://vmm.duong.cz](https://vmm.duong.cz).
-
 ## Popis projektu
 
 Projekt je zaměřen na implementaci podobnostní míry pro audio skladby. Aplikace by měla obsahovat databázi audio souborů. Uživatel se následně může dotázat vlastním audio dotazem (skrze webové rozhraní) do databáze a aplikace vrátí množinu podobných audio souborů v databázi. V rámci projektu je třeba naimplementovat extrakci deskriptorů ze zvoleného typu audio souborů a navrhnout a implementovat na nich vlastní podobnostní míru.
